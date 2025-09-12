@@ -7,6 +7,12 @@ import { useData } from '@/contexts/DataContext';
 import DashboardLayout from '@/components/DashboardLayout';
 
 const AlimentacaoPage = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!form.petId || !form.marca || !form.tipo || !form.quantidade || !form.horarios) return;
+    setAlimentacoes(prev => [...prev, { ...form, id: Date.now() }]);
+    setForm({ petId: '', marca: '', tipo: '', quantidade: '', horarios: '' });
+  };
   const { pets } = useData();
   const [form, setForm] = useState({
     petId: '',

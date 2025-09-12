@@ -32,7 +32,9 @@ const PacientesPage = () => {
       <Card className="mb-8">
         <CardHeader>
           <CardTitle>Adicionar Paciente</CardTitle>
-        return (
+        </CardHeader>
+        <CardContent>
+          {pacientes.length === 0 ? (
           <DashboardLayout>
             <div className="p-8 max-w-3xl mx-auto">
               <h1 className="text-2xl font-bold mb-6">Pacientes</h1>

@@ -21,6 +21,46 @@ import { supabase } from '@/lib/customSupabaseClient';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
 
 const PetProfile = () => {
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
+
+  // Função para upload de foto
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file || !petId) return;
+    setUploading(true);
+    setUploadError(null);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${petId}.${fileExt}`;
+      // Recupera o usuário autenticado
+      const { data: { user } } = await supabase.auth.getUser();
+      const metadata = { owner: user.id.toString() };
+      console.log('Metadata enviado:', metadata);
+      const { data, error: uploadError } = await supabase.storage.from('pet-photos').upload(fileName, file, {
+        upsert: true,
+        metadata,
+      });
+      if (uploadError) {
+        setUploadError(`Erro Supabase: ${uploadError.message || uploadError}`);
+        setUploading(false);
+        return;
+      }
+      const { data: urlData } = supabase.storage.from('pet-photos').getPublicUrl(fileName);
+      const photo_url = urlData.publicUrl;
+      // Atualiza o perfil do pet
+      const { error: updateError } = await supabase.from('pets').update({ photo_url }).eq('id', petId);
+      if (updateError) {
+        setUploadError(`Erro Supabase: ${updateError.message || updateError}`);
+        setUploading(false);
+        return;
+      }
+      setPet(prev => ({ ...prev, photo_url }));
+    } catch (err) {
+      setUploadError(`Erro inesperado: ${err.message || err}`);
+    }
+    setUploading(false);
+  };
   const { petId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -144,17 +184,40 @@ const PetProfile = () => {
           <Card className="shadow-sm">
             <CardContent className="p-6">
               <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
-                <div className="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <PawPrint className="w-12 h-12 text-purple-500" />
+                {/* Foto do pet + upload */}
+                <div className="flex flex-col items-center">
+                  <div className="w-28 h-28 rounded-full overflow-hidden shadow-lg border-4 border-white bg-gray-100 flex items-center justify-center flex-shrink-0 mb-2">
+                    {pet.photo_url ? (
+                      <img src={pet.photo_url} alt={pet.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <PawPrint className="w-16 h-16 text-purple-300" />
+                    )}
+                  </div>
+                  <label className="block">
+                    <span className="text-xs text-gray-500">Alterar foto</span>
+                    <input type="file" accept="image/*" className="mt-1 block w-full text-xs" onChange={handlePhotoUpload} disabled={uploading} />
+                  </label>
+                  {uploading && <span className="text-xs text-purple-500 mt-1">Enviando...</span>}
+                  {uploadError && <span className="text-xs text-red-500 mt-1">{uploadError}</span>}
                 </div>
                 <div className="flex-1 w-full">
-                  <h2 className="text-2xl font-bold text-gray-800 mb-2 text-center sm:text-left">{pet.name}</h2>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center sm:text-left">
-                    <div><p className="text-sm text-gray-500">Espécie</p><p className="font-semibold text-gray-700">{pet.species}</p></div>
-                    <div><p className="text-sm text-gray-500">Raça</p><p className="font-semibold text-gray-700">{pet.breed}</p></div>
-                    <div><p className="text-sm text-gray-500">Idade</p><p className="font-semibold text-gray-700">{pet.age}</p></div>
-                    <div><p className="text-sm text-gray-500">Peso</p><p className="font-semibold text-gray-700">{pet.weight}kg</p></div>
+                  <h2 className="text-3xl font-bold text-blue-700 mb-1 text-center sm:text-left">{pet.name}</h2>
+                  <p className="text-gray-500 text-lg mb-2 text-center sm:text-left">{pet.breed}</p>
+                  <div className="flex flex-wrap gap-2 justify-center sm:justify-start mb-2">
+                    {/* Idade */}
+                    <span className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 text-sm font-semibold">{pet.age}</span>
+                    {/* Peso */}
+                    <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-800 text-sm font-semibold">{pet.weight}kg</span>
+                    {/* Sexo */}
+                    {pet.gender && (
+                      <span className={`px-3 py-1 rounded-full text-sm font-semibold ${pet.gender === 'Fêmea' ? 'bg-pink-100 text-pink-600' : 'bg-blue-100 text-blue-600'}`}>{pet.gender}</span>
+                    )}
+                    {/* Status */}
+                    {pet.castrated && (
+                      <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-semibold">Castrado</span>
+                    )}
                   </div>
+                  <p className="text-gray-400 text-sm text-center sm:text-left">{pet.species}</p>
                 </div>
               </div>
             </CardContent>
