@@ -67,13 +67,13 @@ const TutorDashboard = () => {
 
   const sidebarItems = [
     { icon: LayoutDashboard, label: 'Dashboard', href: '/tutor/dashboard', color: 'text-purple-500', bgColor: 'bg-purple-100' },
-    { icon: PawPrint, label: 'Meus Pets', href: '#', color: 'text-pink-500', bgColor: 'bg-pink-100' },
-    { icon: Syringe, label: 'Vacinas', href: '#', color: 'text-green-500', bgColor: 'bg-green-100' },
-    { icon: Calendar, label: 'Consultas', href: '#', color: 'text-blue-500', bgColor: 'bg-blue-100' },
-    { icon: Pill, label: 'Medicamentos', href: '#', color: 'text-red-500', bgColor: 'bg-red-100' },
-    { icon: Weight, label: 'Peso', href: '#', color: 'text-yellow-500', bgColor: 'bg-yellow-100' },
-    { icon: Bone, label: 'Alimentação', href: '#', color: 'text-orange-500', bgColor: 'bg-orange-100' },
-    { icon: Camera, label: 'Galeria', href: '#', color: 'text-indigo-500', bgColor: 'bg-indigo-100' },
+    { icon: PawPrint, label: 'Meus Pets', href: '/meus-pets', color: 'text-pink-500', bgColor: 'bg-pink-100' },
+    { icon: Syringe, label: 'Vacinas', href: '/vacinas', color: 'text-green-500', bgColor: 'bg-green-100' },
+    { icon: Calendar, label: 'Consultas', href: '/consultas', color: 'text-blue-500', bgColor: 'bg-blue-100' },
+    { icon: Pill, label: 'Medicamentos', href: '/medicamentos', color: 'text-red-500', bgColor: 'bg-red-100' },
+    { icon: Weight, label: 'Peso', href: '/peso', color: 'text-yellow-500', bgColor: 'bg-yellow-100' },
+    { icon: Bone, label: 'Alimentação', href: '/alimentacao', color: 'text-orange-500', bgColor: 'bg-orange-100' },
+    { icon: Camera, label: 'Galeria', href: '/galeria', color: 'text-indigo-500', bgColor: 'bg-indigo-100' },
     { icon: UserPlus, label: 'Conceder Acesso', href: '/grant-access', color: 'text-teal-500', bgColor: 'bg-teal-100' },
   ];
 

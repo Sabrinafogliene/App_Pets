@@ -50,9 +50,9 @@ const VetDashboard = () => {
 
   const sidebarItems = [
     { icon: LayoutDashboard, label: 'Dashboard', href: '/vet/dashboard', color: 'text-blue-500', bgColor: 'bg-blue-100' },
-    { icon: Users, label: 'Pacientes', href: '#', color: 'text-pink-500', bgColor: 'bg-pink-100' },
-    { icon: Calendar, label: 'Agenda', href: '#', color: 'text-green-500', bgColor: 'bg-green-100' },
-    { icon: FileText, label: 'Prontuários', href: '#', color: 'text-purple-500', bgColor: 'bg-purple-100' },
+    { icon: Users, label: 'Pacientes', href: '/pacientes', color: 'text-pink-500', bgColor: 'bg-pink-100' },
+    { icon: Calendar, label: 'Agenda', href: '/agenda', color: 'text-green-500', bgColor: 'bg-green-100' },
+    { icon: FileText, label: 'Prontuários', href: '/prontuarios', color: 'text-purple-500', bgColor: 'bg-purple-100' },
   ];
 
   const handleSidebarClick = (href) => {

@@ -10,6 +10,16 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
 import { supabase } from '@/lib/customSupabaseClient';
 import GrantAccessPage from '@/pages/GrantAccessPage';
+import MeusPetsPage from '@/pages/MeusPetsPage';
+import VacinasPage from '@/pages/VacinasPage';
+import ConsultasPage from '@/pages/ConsultasPage';
+import MedicamentosPage from '@/pages/MedicamentosPage';
+import PesoPage from '@/pages/PesoPage';
+import AlimentacaoPage from '@/pages/AlimentacaoPage';
+import GaleriaPage from '@/pages/GaleriaPage';
+import PacientesPage from '@/pages/PacientesPage';
+import AgendaPage from '@/pages/AgendaPage';
+import ProntuariosPage from '@/pages/ProntuariosPage';
 
 function App() {
   const { session, loading } = useAuth();
@@ -36,14 +46,18 @@ function App() {
   }, [session, loading, navigate]);
   
   useEffect(() => {
-    if(profileType){
+    // Redireciona apenas se estiver na raiz ou na página de login
+    const currentPath = window.location.pathname;
+    if (profileType) {
+      if ((currentPath === '/' || currentPath === '/login')) {
         if (profileType === 'tutor') {
           navigate('/tutor/dashboard', { replace: true });
         } else if (profileType === 'vet') {
           navigate('/vet/dashboard', { replace: true });
         }
+      }
     }
-  }, [profileType, navigate])
+  }, [profileType, navigate]);
 
   if (loading) {
     return (
@@ -62,38 +76,20 @@ function App() {
       <div className="min-h-screen main-container">
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          <Route 
-            path="/tutor/dashboard" 
-            element={
-              <ProtectedRoute userType="tutor">
-                <TutorDashboard />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/vet/dashboard" 
-            element={
-              <ProtectedRoute userType="vet">
-                <VetDashboard />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/pet/:petId" 
-            element={
-              <ProtectedRoute userType="tutor">
-                <PetProfile />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/grant-access" 
-            element={
-              <ProtectedRoute userType="tutor">
-                <GrantAccessPage />
-              </ProtectedRoute>
-            } 
-          />
+          <Route path="/tutor/dashboard" element={<ProtectedRoute userType="tutor"><TutorDashboard /></ProtectedRoute>} />
+          <Route path="/vet/dashboard" element={<ProtectedRoute userType="vet"><VetDashboard /></ProtectedRoute>} />
+          <Route path="/pet/:petId" element={<ProtectedRoute userType="tutor"><PetProfile /></ProtectedRoute>} />
+          <Route path="/grant-access" element={<ProtectedRoute userType="tutor"><GrantAccessPage /></ProtectedRoute>} />
+          <Route path="/meus-pets" element={<ProtectedRoute userType="tutor"><MeusPetsPage /></ProtectedRoute>} />
+          <Route path="/vacinas" element={<ProtectedRoute userType="tutor"><VacinasPage /></ProtectedRoute>} />
+          <Route path="/consultas" element={<ProtectedRoute userType="tutor"><ConsultasPage /></ProtectedRoute>} />
+          <Route path="/medicamentos" element={<ProtectedRoute userType="tutor"><MedicamentosPage /></ProtectedRoute>} />
+          <Route path="/peso" element={<ProtectedRoute userType="tutor"><PesoPage /></ProtectedRoute>} />
+          <Route path="/alimentacao" element={<ProtectedRoute userType="tutor"><AlimentacaoPage /></ProtectedRoute>} />
+          <Route path="/galeria" element={<ProtectedRoute userType="tutor"><GaleriaPage /></ProtectedRoute>} />
+          <Route path="/pacientes" element={<ProtectedRoute userType="vet"><PacientesPage /></ProtectedRoute>} />
+          <Route path="/agenda" element={<ProtectedRoute userType="vet"><AgendaPage /></ProtectedRoute>} />
+          <Route path="/prontuarios" element={<ProtectedRoute userType="vet"><ProntuariosPage /></ProtectedRoute>} />
           <Route path="/" element={<LoginPage />} />
         </Routes>
       </div>
