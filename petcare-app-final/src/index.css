@@ -1,3 +1,104 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 224 71% 4%;
+  --card: 0 0% 100%;
+  --card-foreground: 224 71% 4%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 224 71% 4%;
+  --primary: 262 84% 59%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 240 5% 96%;
+  --secondary-foreground: 240 6% 10%;
+  --muted: 240 5% 96%;
+  --muted-foreground: 240 4% 46%;
+  --accent: 240 5% 96%;
+  --accent-foreground: 240 6% 10%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 240 6% 90%;
+  --input: 240 6% 90%;
+  --ring: 262 84% 59%;
+  --radius: 0.75rem;
+}
+
+body {
+  background-color: hsl(var(--background));
+  font-family: 'Inter', sans-serif;
+  color: hsl(var(--foreground));
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.main-container {
+  background-color: hsl(var(--background));
+  position: relative;
+  overflow: hidden;
+}
+
+.color-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(120px);
+  opacity: 0.15;
+  z-index: 0;
+  animation: blob-move 20s infinite alternate;
+}
+
+@keyframes blob-move {
+  0% { transform: scale(1) translate(0px, 0px); }
+  50% { transform: scale(1.2) translate(50px, -50px); }
+  100% { transform: scale(1) translate(0px, 0px); }
+}
+
+.sidebar {
+  background-color: hsl(var(--card));
+  border-right: 1px solid hsl(var(--border));
+  z-index: 20;
+}
+
+.stat-card-new {
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+  transition: all 0.3s ease;
+}
+
+.stat-card-new:hover {
+  transform: translateY(-5px);
+}
+
+.quick-action-button {
+  border: 1px solid hsl(var(--border));
+  background-color: hsl(var(--card));
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+  transition: all 0.2s ease;
+}
+
+.quick-action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+}
+
+.floating-animation {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+}
+
+.pulse-animation {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
