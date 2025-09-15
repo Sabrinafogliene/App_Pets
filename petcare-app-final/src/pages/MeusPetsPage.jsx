@@ -90,11 +90,25 @@ const MeusPetsPage = () => {
                   <Label htmlFor="peso">Peso (kg)</Label>
                   <Input id="peso" type="number" step="0.01" value={form.peso} onChange={e => handleChange('peso', e.target.value)} required />
                 </div>
+                <div>
+                  <Label htmlFor="gender">Gênero</Label>
+                  <select 
+                      id="gender"
+                      value={form.gender || ''}
+                      onChange={e => handleChange('gender', e.target.value)}
+                      className="w-full border rounded-md p-2 mt-1"
+                      required
+                  >
+                      <option value="">Selecione o gênero</option>
+                      <option value="Macho">Macho</option>
+                      <option value="Fêmea">Fêmea</option>
+                  </select>
+                </div>
                 <div className="md:col-span-2 flex justify-end mt-4 gap-2">
                   <Button type="button" variant="outline" onClick={() => setShowForm(false)}>Cancelar</Button>
                   <Button type="submit" className="bg-purple-500 hover:bg-purple-600 text-white">Adicionar</Button>
                 </div>
-              </form>
+                </form>
             </CardContent>
           </Card>
         )}

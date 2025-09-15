@@ -14,6 +14,8 @@ const AddPetDialog = ({ open, onOpenChange }) => {
     breed: '',
     age: '',
     weight: '',
+    gender: '', // Adicionado
+    castrated: false, // Adicionado
     history: ''
   });
 
@@ -23,6 +25,7 @@ const AddPetDialog = ({ open, onOpenChange }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // As novas variáveis `gender` e `castrated` agora estão no `formData`
     if (!formData.name || !formData.species || !formData.breed || !formData.age || !formData.weight) {
       toast({
         title: "Erro",
@@ -52,6 +55,8 @@ const AddPetDialog = ({ open, onOpenChange }) => {
         breed: '',
         age: '',
         weight: '',
+        gender: '', // Resetando o estado
+        castrated: false, // Resetando o estado
         history: ''
       });
 
@@ -133,6 +138,30 @@ const AddPetDialog = ({ open, onOpenChange }) => {
                 value={formData.weight}
                 onChange={(e) => handleInputChange('weight', e.target.value)}
               />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="gender">Gênero</Label>
+              <select
+                id="gender"
+                value={formData.gender || ''}
+                onChange={e => handleInputChange('gender', e.target.value)}
+                className="w-full border rounded-md p-2 mt-1"
+                required
+              >
+                <option value="">Selecione o gênero</option>
+                <option value="Macho">Macho</option>
+                <option value="Fêmea">Fêmea</option>
+              </select>
+            </div>
+            {/* Adicionado o campo de castração para consistência */}
+            <div className="flex items-center space-x-2 mt-auto pb-2">
+                <input
+                    type="checkbox"
+                    id="castrated"
+                    checked={formData.castrated || false}
+                    onChange={e => handleInputChange('castrated', e.target.checked)}
+                />
+                <Label htmlFor="castrated">Castrado</Label>
             </div>
           </div>
 

@@ -19,51 +19,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/lib/customSupabaseClient';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const PetProfile = () => {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState(null);
 
-  // Função para upload de foto
-  const handlePhotoUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file || !petId) return;
-    setUploading(true);
-    setUploadError(null);
-    try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${petId}.${fileExt}`;
-      // Recupera o usuário autenticado
-      const { data: { user } } = await supabase.auth.getUser();
-      const metadata = { owner: user.id.toString() };
-      console.log('Metadata enviado:', metadata);
-      const { data, error: uploadError } = await supabase.storage.from('pet-photos').upload(fileName, file, {
-        upsert: true,
-        metadata,
-      });
-      if (uploadError) {
-        setUploadError(`Erro Supabase: ${uploadError.message || uploadError}`);
-        setUploading(false);
-        return;
-      }
-      const { data: urlData } = supabase.storage.from('pet-photos').getPublicUrl(fileName);
-      const photo_url = urlData.publicUrl;
-      // Atualiza o perfil do pet
-      const { error: updateError } = await supabase.from('pets').update({ photo_url }).eq('id', petId);
-      if (updateError) {
-        setUploadError(`Erro Supabase: ${updateError.message || updateError}`);
-        setUploading(false);
-        return;
-      }
-      setPet(prev => ({ ...prev, photo_url }));
-    } catch (err) {
-      setUploadError(`Erro inesperado: ${err.message || err}`);
-    }
-    setUploading(false);
-  };
+  const { user } = useAuth();
   const { petId } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const { toast } = useToast();
 
   const [pet, setPet] = useState(null);
@@ -91,6 +58,7 @@ const PetProfile = () => {
         return;
       }
       setPet(petData);
+      setEditForm(petData); // Inicializa o formulário de edição com os dados do pet
 
       const { data: vaccinesData } = await supabase.from('vaccines').select('*').eq('pet_id', petId);
       setVaccines(vaccinesData || []);
@@ -109,10 +77,82 @@ const PetProfile = () => {
 
     fetchPetData();
   }, [petId, user, navigate, toast]);
+  
+  // Função de upload de foto (já implementada)
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!user || !file || !petId) {
+      console.error('Dados ausentes: Usuário, arquivo ou ID do pet.');
+      setUploadError('Você precisa estar logado para enviar uma foto.');
+      return;
+    }
+    setUploading(true);
+    setUploadError(null);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${petId}.${fileExt}`;
+      const { data, error: uploadError } = await supabase.storage.from('pet-photos').upload(fileName, file, {
+        upsert: true,
+        metadata: { owner_id: user.id }
+      });
+      if (uploadError) throw uploadError;
+      const { data: urlData } = supabase.storage.from('pet-photos').getPublicUrl(fileName);
+      const photo_url = urlData.publicUrl;
+      const { error: updateError } = await supabase.from('pets').update({ photo_url }).eq('id', petId);
+      if (updateError) throw updateError;
+      setPet(prev => ({ ...prev, photo_url }));
+      toast({ title: "Sucesso!", description: "A foto foi atualizada com sucesso.", });
+    } catch (err) {
+      setUploadError(`Erro inesperado: ${err.message || err}`);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Funções para lidar com a edição
+  const handleEditChange = (field, value) => {
+    setEditForm(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    if (!editForm) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('pets')
+        .update({
+          name: editForm.name,
+          species: editForm.species,
+          breed: editForm.breed,
+          age: editForm.age,
+          weight: editForm.weight,
+          gender: editForm.gender,
+          castrated: editForm.castrated
+        })
+        .eq('id', petId)
+        .select()
+        .single();
+      
+      if (error) throw error;
+
+      setPet(data); // Atualiza o estado principal do pet
+      setIsEditing(false); // Fecha o formulário de edição
+      toast({ title: "Sucesso!", description: "Perfil do pet atualizado com sucesso." });
+
+    } catch (error) {
+      console.error("Erro ao atualizar perfil:", error);
+      toast({ title: "Erro", description: `Não foi possível atualizar o perfil: ${error.message}`, variant: "destructive" });
+    }
+  };
 
   const handleFeatureClick = (feature) => {
+    if (feature === 'edit') {
+        setIsEditing(true);
+        return;
+    }
     toast({
-      title: "🚧 Esta funcionalidade ainda não foi implementada—mas não se preocupe! Você pode solicitá-la no seu próximo prompt! 🚀"
+        title: "🚧 Esta funcionalidade ainda não foi implementada—mas não se preocupe! Você pode solicitá-la no seu próximo prompt! 🚀"
     });
   };
 
@@ -179,6 +219,65 @@ const PetProfile = () => {
             </Button>
           </div>
         </div>
+        
+        {/* Formulário de Edição */}
+        {isEditing && (
+           <Card className="mb-8 shadow-md">
+                <CardHeader>
+                    <CardTitle>Editar Perfil</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={handleEditSubmit}>
+                        <div>
+                            <Label htmlFor="edit-name">Nome</Label>
+                            <Input id="edit-name" value={editForm?.name || ''} onChange={e => handleEditChange('name', e.target.value)} />
+                        </div>
+                        <div>
+                            <Label htmlFor="edit-species">Espécie</Label>
+                            <Input id="edit-species" value={editForm?.species || ''} onChange={e => handleEditChange('species', e.target.value)} />
+                        </div>
+                        <div>
+                            <Label htmlFor="edit-breed">Raça</Label>
+                            <Input id="edit-breed" value={editForm?.breed || ''} onChange={e => handleEditChange('breed', e.target.value)} />
+                        </div>
+                        <div>
+                            <Label htmlFor="edit-age">Idade</Label>
+                            <Input id="edit-age" value={editForm?.age || ''} onChange={e => handleEditChange('age', e.target.value)} />
+                        </div>
+                        <div>
+                            <Label htmlFor="edit-weight">Peso (kg)</Label>
+                            <Input id="edit-weight" value={editForm?.weight || ''} onChange={e => handleEditChange('weight', e.target.value)} />
+                        </div>
+                        <div>
+                            <Label htmlFor="edit-gender">Gênero</Label>
+                            <select
+                                id="edit-gender"
+                                value={editForm?.gender || ''}
+                                onChange={e => handleEditChange('gender', e.target.value)}
+                                className="w-full border rounded-md p-2 mt-1"
+                            >
+                                <option value="">Selecione o gênero</option>
+                                <option value="Macho">Macho</option>
+                                <option value="Fêmea">Fêmea</option>
+                            </select>
+                        </div>
+                        <div className="md:col-span-2 flex items-center space-x-2">
+                            <input
+                                type="checkbox"
+                                id="edit-castrated"
+                                checked={editForm?.castrated || false}
+                                onChange={e => handleEditChange('castrated', e.target.checked)}
+                            />
+                            <Label htmlFor="edit-castrated">Castrado</Label>
+                        </div>
+                        <div className="md:col-span-2 flex justify-end gap-2 mt-4">
+                            <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>Cancelar</Button>
+                            <Button type="submit">Salvar Alterações</Button>
+                        </div>
+                    </form>
+                </CardContent>
+            </Card>
+        )}
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-8">
           <Card className="shadow-sm">
