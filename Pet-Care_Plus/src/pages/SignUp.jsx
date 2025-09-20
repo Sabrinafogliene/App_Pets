@@ -58,6 +58,7 @@ const SignUp = () => {
 		}
 		setLoading(true);
 
+		console.log('Tentando criar usuário no Supabase Auth:', { email, userType });
 		const { data, error } = await supabase.auth.signUp({
 			email,
 			password,
@@ -69,39 +70,69 @@ const SignUp = () => {
 				},
 			},
 		});
+		console.log('Resultado do signUp:', { data, error });
+
+		// Só insere no profiles se o usuário estiver autenticado (session presente)
+		let profileInsertError = null;
+		if (data.user && data.session) {
+			console.log('ID do usuário para insert:', data.user.id);
+			console.log('Usuário autenticado:', data.user);
+			const sessionResult = await supabase.auth.getSession();
+			console.log('Token JWT da sessão:', sessionResult?.data?.session?.access_token);
+			console.log('Usuário criado, tentando inserir no profiles:', data.user.id);
+			const { error: insertError } = await supabase
+				.from('profiles')
+				.insert([
+					{
+						id: data.user.id,
+						full_name: fullName,
+						user_type: userType,
+						email,
+						...(userType === 'veterinario' && { crmv, clinic }),
+					},
+				]);
+			console.log('Resultado do insert no profiles:', { insertError });
+			if (insertError) {
+				profileInsertError = insertError;
+			}
+		} else if (data.user && !data.session) {
+			console.log('Usuário criado, mas não autenticado. Perfil será criado após login.');
+		}
 
 		setLoading(false);
 
-		if (error) {
+		if (error || profileInsertError) {
 			let errorMessage = 'Ocorreu um erro ao criar sua conta. Tente novamente.';
-			if (error.message.includes('weak_password')) {
+			if (error?.message?.includes('weak_password')) {
 				errorMessage = 'Senha muito fraca. Por favor, escolha uma senha mais forte e segura.';
-			} else if (error.message.includes('User already registered')) {
+			} else if (error?.message?.includes('User already registered')) {
 				errorMessage = 'Este e-mail já está cadastrado. Tente fazer login.';
+			} else if (profileInsertError) {
+				errorMessage = 'Erro ao salvar perfil. Tente novamente ou contate o suporte.';
 			}
+			console.error('Erro no cadastro:', { error, profileInsertError });
 			toast({
 				title: 'Erro no Cadastro',
 				description: errorMessage,
 				variant: 'destructive',
 			});
 		} else if (data.user && data.session) {
-			// SUCESSO REAL: Usuário criado E logado (quando confirmação de email está desativada)
+			console.log('Cadastro realizado com sucesso! Redirecionando para painel.');
 			toast({
 				title: 'Cadastro realizado com sucesso!',
 				description: 'Redirecionando para o seu painel...',
 				className: 'bg-green-500 text-white',
 			});
-			// O AuthProvider vai detectar a nova sessão e redirecionar corretamente.
 			navigate('/', { replace: true });
 		} else if (data.user && !data.session) {
-			// SUCESSO PARCIAL: Usuário criado, mas precisa confirmar email (quando confirmação está ativada)
+			console.log('Cadastro realizado, mas precisa confirmar e-mail.');
 			toast({
 				title: 'Confirme seu E-mail',
 				description: 'Cadastro realizado! Enviamos um link de confirmação para o seu e-mail.',
 			});
 			navigate('/login', { replace: true });
 		} else {
-			// FALHA INESPERADA: A API não retornou erro, mas também não retornou usuário.
+			console.error('Falha inesperada no cadastro:', { data, error });
 			toast({
 				title: 'Falha no Cadastro',
 				description: 'Não foi possível criar sua conta. Verifique os dados e tente novamente.',

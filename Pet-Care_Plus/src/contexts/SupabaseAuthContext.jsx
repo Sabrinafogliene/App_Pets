@@ -31,9 +31,11 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const getInitialSession = async () => {
       const { data: { session: initialSession } } = await supabase.auth.getSession();
+      console.log('Sessão inicial:', initialSession);
       setSession(initialSession);
       if (initialSession?.user) {
         const initialProfile = await fetchUserProfile(initialSession.user);
+        console.log('Perfil inicial:', initialProfile);
         setProfile(initialProfile);
       }
       setLoading(false);
@@ -43,16 +45,16 @@ export const AuthProvider = ({ children }) => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
+        console.log('Evento de autenticação:', event, newSession);
         setSession(newSession);
         
         if (newSession?.user) {
-          // Sempre busca o perfil quando a sessão muda para garantir que está atualizado
           const newProfile = await fetchUserProfile(newSession.user);
+          console.log('Perfil após mudança de sessão:', newProfile);
           setProfile(newProfile);
         } else {
           setProfile(null);
         }
-        // O loading principal só é falso após a primeira verificação
         if (loading) setLoading(false);
       }
     );
