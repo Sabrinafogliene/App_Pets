@@ -1,0 +1,138 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-gray-50 text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  }
+}
+
+.sidebar-gradient {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.card-shadow {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.card-shadow-hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.pet-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.pet-card:hover {
+  transform: translateY(-2px);
+}
+
+.status-badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.status-em-dia {
+  @apply bg-green-100 text-green-800;
+}
+
+.status-venc-proximo {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.status-atrasada {
+  @apply bg-red-100 text-red-800;
+}
+
+.status-ativo {
+  @apply bg-blue-100 text-blue-800;
+}
+
+.status-finalizado {
+  @apply bg-gray-100 text-gray-800;
+}
+
+.status-agendada {
+  @apply bg-purple-100 text-purple-800;
+}
+
+.status-concluida {
+  @apply bg-green-100 text-green-800;
+}
+
+.alimentacao-theme {
+	--primary: 25.1 95% 53.1%;
+	--primary-foreground: 210 40% 98%;
+  --ring: 25.1 95% 53.1%;
+}
+
+.medicamentos-theme {
+  --primary: 210.5 86.1% 43.5%;
+	--primary-foreground: 210 40% 98%;
+  --ring: 210.5 86.1% 43.5%;
+}
+
+.galeria-theme {
+	--primary: 174.5 72.8% 30.6%;
+	--primary-foreground: 210 40% 98%;
+  --ring: 174.5 72.8% 30.6%;
+}
+
+.pets-theme {
+	--primary: 326.6 93.8% 66.3%;
+	--primary-foreground: 210 40% 98%;
+  --ring: 326.6 93.8% 66.3%;
+}
+
+.peso-theme {
+	--primary: 40 100% 50%; 
+  --primary-foreground: 40 100% 98%;
+  --ring: 40 100% 50%;
+}
+
+.vacinas-theme {
+	--primary: 142.1 76.2% 36.3%;
+	--primary-foreground: 210 40% 98%;
+  --ring: 142.1 76.2% 36.3%;
+}
+
+.consultas-theme {
+  --primary: 263.4 70% 50.4%;
+  --primary-foreground: 210 40% 98%;
+  --ring: 263.4 70% 50.4%;
+}
+
+.vet-theme {
+  --primary: 191 89.2% 36.5%;
+  --primary-foreground: 191 89.2% 98%;
+  --ring: 191 89.2% 36.5%;
+}
