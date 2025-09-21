@@ -97,8 +97,11 @@ const EditPetDialog = ({ open, onOpenChange, onPetUpdated, pet, className }) => 
       filePathForDb = newFilePath;
     }
 
+    // Padronizar espécie para minúsculo e sem acento
+    const normalizeSpecies = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
     const petDataToUpdate = {
       ...formData,
+      species: normalizeSpecies(formData.species),
       weight: parseFloat(formData.weight) || null,
       file_path: filePathForDb,
       registration_number: formData.registro ? formData.registration_number : null,

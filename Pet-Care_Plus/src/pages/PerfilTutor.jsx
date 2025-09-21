@@ -19,8 +19,47 @@ import NewMedicationDialog from '@/components/NewMedicationDialog';
 import NewFoodRecordDialog from '@/components/NewFoodRecordDialog';
 import NewPhotoDialog from '@/components/NewPhotoDialog';
 import EditPetDialog from '@/components/EditPetDialog';
+import { cn } from "@/lib/utils";
+import { differenceInYears, differenceInMonths } from "date-fns";
 
+const getSpeciesInfo = (especie) => {
+  const normalized = especie.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  const speciesData = {
+    cachorro: { icon: "🐕", nome: "Cachorro", color: "bg-amber-100 text-amber-800" },
+    gato: { icon: "🐈", nome: "Gato", color: "bg-purple-100 text-purple-800" },
+    passaro: { icon: "🦜", nome: "Pássaro", color: "bg-blue-100 text-blue-800" },
+    coelho: { icon: "🐇", nome: "Coelho", color: "bg-pink-100 text-pink-800" },
+    peixe: { icon: "🐟", nome: "Peixe", color: "bg-cyan-100 text-cyan-800" },
+    cavalo: { icon: "🐎", nome: "Cavalo", color: "bg-pink-200 text-pink-800" },
+    lhama: { icon: "🦙", nome: "Lhama", color: "bg-blue-200 text-blue-800" },
+    cabra: { icon: "🐐", nome: "Cabra", color: "bg-amber-200 text-amber-800" },
+    bovino: { icon: "🐄", nome: "Bovino", color: "bg-cyan-200 text-cyan-800" },
+    porco: { icon: "🐖", nome: "Porco", color: "bg-pink-200 text-pink-800" },
+    reptil: { icon: "🐢", nome: "Réptil", color: "bg-green-100 text-green-800" },
+    roedor: { icon: "🐀", nome: "Roedor", color: "bg-purple-200 text-purple-800" },
+    outro: { icon: "🐾", nome: "Outro", color: "bg-gray-100 text-gray-800" }
+  };
+  if (normalized === "passaro" || normalized === "pássaro") return speciesData.passaro;
+  return speciesData[normalized] || speciesData.outro;
+};
 
+const calculateAge = (birthday) => {
+    if (!birthday) return "--";
+    const birthDate = new Date(birthday);
+    const now = new Date();
+    const years = differenceInYears(now, birthDate);
+    const months = differenceInMonths(now, birthDate) % 12;
+    let ageString = "";
+    if (years > 0) {
+        ageString += `${years}a`;
+    }
+    if (months > 0) {
+        if (ageString !== "") ageString += " ";
+        ageString += `${months}m`;
+    }
+    if (ageString === "") return "Menos de um mês";
+    return ageString;
+};
 const PerfilTutor = () => {
   const { id } = useParams();
   const { user, supabase } = useAuth();
@@ -44,7 +83,7 @@ const PerfilTutor = () => {
     newPhoto: false,
     editPet: false,
   });
-
+  
   const fetchData = async () => {
     if (!user || !id) return;
     setLoading(true);
@@ -125,7 +164,7 @@ const PerfilTutor = () => {
 
   if (loading) return <div className="text-center py-10">Carregando perfil do seu pet...</div>;
   if (!pet) return <div className="text-center py-10">Pet não encontrado.</div>;
-
+  const speciesInfo = getSpeciesInfo(pet.species.toLowerCase());
   return (
     <>
       <NewVaccineDialog open={dialogs.newVaccine} onOpenChange={(isOpen) => setDialogs(prev => ({...prev, newVaccine: isOpen}))} onVaccineAdded={fetchData} pets={[pet]} />
@@ -145,17 +184,22 @@ const PerfilTutor = () => {
           <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
             <img
               alt={pet.name}
-              className="w-24 h-24 rounded-full object-cover border-4 border-pink-200"
+              className="w-24 h-24 rounded-full object-cover border-4 border-white-200"
               src={imageUrl || 'https://placehold.co/150x150/fecaca/fecaca?text=...'}
             />
             <div className="flex-1 text-center md:text-left">
-              <h1 className="text-3xl font-bold text-pink-600 mb-1">{pet.name}</h1>
+              <h3 className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mt-2">{pet.name}</h3>
               <p className="text-gray-600 mb-3">{pet.breed}</p>
               <div className="flex flex-wrap justify-center md:justify-start items-center gap-2">
-                <span className="status-badge bg-yellow-100 text-yellow-800">{pet.age}</span>
-                <span className="status-badge bg-blue-100 text-blue-800">{pet.weight}</span>
-                <span className="status-badge bg-pink-100 text-pink-800">{pet.gender || 'N/A'}</span>
+                
+                <span className="status-badge bg-yellow-100 text-yellow-800"><Calendar className="inline w-4 h-4 mr-1" />{calculateAge(pet.birthday || '')}</span>
+                <span className="status-badge bg-blue-100 text-blue-800"><Scale className="inline w-4 h-4 mr-1" />{pet.weight}Kg</span>
+                <span className="status-badge bg-purple-100 text-purple-800">
+                  {pet.gender === 'Fêmea' ? <HeartPulse className="inline w-4 h-4 mr-1 text-pink-500" /> : pet.gender === 'Macho' ? <Bone className="inline w-4 h-4 mr-1 text-blue-500" /> : null}
+                  {pet.gender || 'N/A'}
+                </span>
                 <span className="status-badge bg-green-100 text-green-800">{pet.castrated ? 'Castrado' : 'Não Castrado'}</span>
+                <span className={`status-badge ${speciesInfo.color}`}>{speciesInfo.icon} {speciesInfo.nome}</span>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">

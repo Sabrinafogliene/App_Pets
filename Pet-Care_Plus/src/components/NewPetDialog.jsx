@@ -53,8 +53,11 @@ const NewPetDialog = ({ open, onOpenChange, onPetAdded, className }) => {
     }
     setIsLoading(true);
 
+    // Padronizar espécie para minúsculo e sem acento
+    const normalizeSpecies = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
     const petDataToSave = {
       ...formData,
+      species: normalizeSpecies(formData.species),
       weight: parseFloat(formData.weight) || null,
       user_id: user.id,
       registration_number: formData.registro ? formData.registration_number : null,
