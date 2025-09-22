@@ -17,73 +17,44 @@ import { cn } from "@/lib/utils";
 
 const NewVetAccessDialog = ({ open, onOpenChange, onAccessGranted, pets, className }) => {
   const { toast } = useToast();
-  const { user, supabase } = useAuth();
+  const { user, session } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [vetEmail, setVetEmail] = useState('');
   const [petId, setPetId] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user || !petId || !vetEmail) {
-      toast({ variant: 'destructive', title: 'Erro', description: 'Por favor, preencha todos os campos.' });
+    if (!user || !session?.access_token || !petId || !vetEmail) {
+      toast({ variant: 'destructive', title: 'Erro', description: 'Por favor, preencha todos os campos e faça login novamente.' });
       return;
     }
     setIsLoading(true);
 
     try {
-      // 1. Check if user exists
-      const { data: vetUserData, error: rpcError } = await supabase.rpc('get_user_by_email', { p_email: vetEmail });
+      const response = await fetch('https://axavdsrihemzsamnwgcf.supabase.co/functions/v1/invite-vet', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({
+          vet_email: vetEmail,
+          pet_id: petId,
+          tutor_id: user.id
+        }),
+      });
 
-      if (rpcError) throw rpcError;
+      const data = await response.json();
 
-      // 2. If user does NOT exist, send an invitation
-      if (!vetUserData) {
-        const { error: inviteError } = await supabase.auth.admin.inviteUserByEmail(vetEmail, {
-          data: {
-            user_type: 'veterinario',
-            initial_pet_access: petId,
-            tutor_id: user.id
-          },
-          redirectTo: `${window.location.origin}/signup`
-        });
-
-        if (inviteError) {
-          if (inviteError.message.includes('User already registered')) {
-            toast({ variant: 'destructive', title: 'Erro', description: 'Este e-mail já está cadastrado, mas pode não ser um veterinário. Peça para ele verificar.' });
-          } else {
-            throw inviteError;
-          }
-        } else {
-          toast({
-            title: 'Convite Enviado!',
-            description: `Um e-mail de convite foi enviado para ${vetEmail}. O acesso será concedido após o cadastro.`,
-            className: 'bg-green-500 text-white'
-          });
-        }
-      } else {
-        // 3. If user EXISTS, grant access directly via RPC
-        const userType = vetUserData.raw_user_meta_data?.user_type;
-        if (userType !== 'veterinario') {
-          toast({ variant: 'destructive', title: 'Erro', description: 'O e-mail informado não pertence a um veterinário cadastrado.' });
-          setIsLoading(false);
-          return;
-        }
-
-        const { error: grantError } = await supabase.rpc('grant_vet_access', {
-          p_vet_email: vetEmail,
-          p_pet_id: petId,
-          p_tutor_id: user.id
-        });
-
-        if (grantError) throw grantError;
-
-        toast({
-          title: 'Acesso Concedido!',
-          description: `O veterinário ${vetEmail} agora tem acesso ao seu pet.`,
-          className: 'bg-green-500 text-white'
-        });
+      if (!response.ok) {
+        throw new Error(data.message || 'Erro desconhecido.');
       }
-
+      toast({
+        title: data.status === 'invitation_sent' ? 'Convite Enviado!' : 'Acesso Concedido!',
+        description: data.message,
+        className: 'bg-green-500 text-white'
+      });
+       
       onAccessGranted();
       onOpenChange(false);
       setVetEmail('');
@@ -94,7 +65,7 @@ const NewVetAccessDialog = ({ open, onOpenChange, onAccessGranted, pets, classNa
       toast({
         variant: 'destructive',
         title: 'Erro ao Conceder Acesso',
-        description: error.message || 'Ocorreu um erro inesperado. Tente novamente.',
+        description: error.message,
       });
     } finally {
       setIsLoading(false);

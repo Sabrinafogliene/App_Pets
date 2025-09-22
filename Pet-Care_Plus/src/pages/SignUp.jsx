@@ -30,11 +30,11 @@ const SignUp = () => {
 	const invitationToken = queryParams.get('invitation_token');
 	const isInvited = !!invitationToken;
 
-	useEffect(() => {
-		if (isInvited) {
-			setUserType('veterinario');
-		}
-	}, [isInvited]);
+		useEffect(() => {
+			if (isInvited) {
+				setUserType('vet');
+			}
+		}, [isInvited]);
 
 	const validatePassword = (pass) => {
 		if (pass.length < 6) {
@@ -58,43 +58,45 @@ const SignUp = () => {
 		}
 		setLoading(true);
 
-		console.log('Tentando criar usuário no Supabase Auth:', { email, userType });
-		const { data, error } = await supabase.auth.signUp({
-			email,
-			password,
-			options: {
-				data: {
-					full_name: fullName,
-					user_type: userType,
-					...(userType === 'veterinario' && { crmv, clinic }),
+			console.log('Tentando criar usuário no Supabase Auth:', { email, userType });
+			// Normaliza userType para 'vet' ou 'tutor'
+			const normalizedUserType = userType === 'veterinario' || userType === 'vet' ? 'vet' : 'tutor';
+			const { data, error } = await supabase.auth.signUp({
+				email,
+				password,
+				options: {
+					data: {
+						full_name: fullName,
+						user_type: normalizedUserType,
+						...(normalizedUserType === 'vet' && { crmv, clinic }),
+					},
 				},
-			},
-		});
+			});
 		console.log('Resultado do signUp:', { data, error });
 
 		// Só insere no profiles se o usuário estiver autenticado (session presente)
 		let profileInsertError = null;
-		if (data.user && data.session) {
-			console.log('ID do usuário para insert:', data.user.id);
-			console.log('Usuário autenticado:', data.user);
-			const sessionResult = await supabase.auth.getSession();
-			console.log('Token JWT da sessão:', sessionResult?.data?.session?.access_token);
-			console.log('Usuário criado, tentando inserir no profiles:', data.user.id);
-			const { error: insertError } = await supabase
-				.from('profiles')
-				.insert([
-					{
-						id: data.user.id,
-						full_name: fullName,
-						user_type: userType,
-						email,
-						...(userType === 'veterinario' && { crmv, clinic }),
-					},
-				]);
-			console.log('Resultado do insert no profiles:', { insertError });
-			if (insertError) {
-				profileInsertError = insertError;
-			}
+			if (data.user && data.session) {
+				console.log('ID do usuário para insert:', data.user.id);
+				console.log('Usuário autenticado:', data.user);
+				const sessionResult = await supabase.auth.getSession();
+				console.log('Token JWT da sessão:', sessionResult?.data?.session?.access_token);
+				console.log('Usuário criado, tentando inserir no profiles:', data.user.id);
+				const { error: insertError } = await supabase
+					.from('profiles')
+					.insert([
+						{
+							id: data.user.id,
+							full_name: fullName,
+							user_type: normalizedUserType,
+							email,
+							...(normalizedUserType === 'vet' && { crmv, clinic }),
+						},
+					]);
+				console.log('Resultado do insert no profiles:', { insertError });
+				if (insertError) {
+					profileInsertError = insertError;
+				}
 		} else if (data.user && !data.session) {
 			console.log('Usuário criado, mas não autenticado. Perfil será criado após login.');
 		}
@@ -174,8 +176,8 @@ const SignUp = () => {
 									<SelectValue placeholder="Selecione o tipo de usuário" />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value="tutor">Tutor de Pet</SelectItem>
-									<SelectItem value="veterinario">Veterinário</SelectItem>
+									  <SelectItem value="tutor">Tutor de Pet</SelectItem>
+									  <SelectItem value="vet">Veterinário</SelectItem>
 								</SelectContent>
 							</Select>
 						</div>
@@ -199,7 +201,7 @@ const SignUp = () => {
 						</div>
 						{passwordError && <p className="text-xs text-red-500 mt-1">{passwordError}</p>}
 
-						{userType === 'veterinario' && (
+						{(userType === 'veterinario' || userType === 'vet') && (
 							<>
 								<div>
 									<Label htmlFor="crmv">CRMV</Label>

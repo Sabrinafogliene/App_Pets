@@ -36,7 +36,7 @@ const AcessoVeterinarios = () => {
 
     const { data, error } = await supabase
       .from('vet_access')
-      .select('*, pet:pets(name, species, file_path), vet:profiles!vet_access_vet_id_fkey_new(id, full_name, email)')
+      .select('*, pet:pets(name, species, file_path)')
       .eq('tutor_id', user.id);
 
     if (error) {
@@ -48,17 +48,28 @@ const AcessoVeterinarios = () => {
       console.error(error);
       setAccessList([]);
     } else {
-      const formattedAccessList = (data || []).map((item) => {
+      // Busca os nomes dos veterinários pelo email
+      const formattedAccessList = await Promise.all((data || []).map(async (item) => {
+        let vetName = 'Veterinário pendente';
+        let vetEmail = item.vet_email || '';
+        if (vetEmail) {
+          const { data: vetProfile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('email', vetEmail)
+            .single();
+          if (vetProfile && vetProfile.full_name) vetName = vetProfile.full_name;
+        }
         return {
           id: item.id,
-          name: item.vet?.full_name || 'Veterinário pendente',
+          name: vetName,
           pet: item.pet?.name || 'Pet não encontrado',
-          email: item.vet?.email || 'E-mail não disponível',
+          email: vetEmail || 'E-mail não disponível',
           grantedDate: new Date(item.created_at).toLocaleDateString('pt-BR'),
           permissions: item.permissions || [],
           isActive: item.is_active,
         };
-      });
+      }));
       setAccessList(formattedAccessList);
     }
     setLoading(false);

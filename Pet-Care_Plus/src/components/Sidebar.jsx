@@ -67,7 +67,9 @@ const Sidebar = ({ userType, isOpen, setIsOpen }) => {
     { icon: Settings, label: 'Configurações', path: '/vet/configuracoes', color: 'text-gray-600' },
   ];
 
-  const menuItems = userType === 'veterinario' ? veterinarioMenuItems : tutorMenuItems;
+  // Aceita tanto 'vet' quanto 'veterinario' para o menu de veterinário
+  const isVet = userType === 'veterinario' || userType === 'vet';
+  const menuItems = isVet ? veterinarioMenuItems : tutorMenuItems;
 
   const sidebarVariants = {
     open: { x: 0 },
@@ -86,7 +88,7 @@ const Sidebar = ({ userType, isOpen, setIsOpen }) => {
               <div>
                 <h1 className="text-xl font-bold text-gray-900">PetCare+</h1>
                 <p className="text-sm text-gray-600">
-                  {userType === 'veterinario' ? 'Portal do Veterinário' : 'Cuidando do seu melhor amigo'}
+                  {isVet ? 'Portal do Veterinário' : 'Cuidando do seu melhor amigo'}
                 </p>
               </div>
             </div>

@@ -215,7 +215,7 @@ const Dashboard = () => {
             .forEach(v => allActivities.push({
                 type: 'vacina',
                 icon: Syringe,
-                title: `Vacina: ${v.name}`,
+                title: `Vacina - ${v.name}`,
                 subtitle: `Pet: ${v.pets?.name || 'Pet'}`,
                 date: new Date(v.date),
                 color: 'text-green-600',
@@ -227,7 +227,7 @@ const Dashboard = () => {
             .forEach(m => allActivities.push({
                 type: 'medicamento',
                 icon: HeartPulse,
-                title: `Tratamento: ${m.nome}`,
+                title: `Medicamento - ${m.name}`,
                 subtitle: `Pet: ${m.pets?.name || 'Pet'}`,
                 date: new Date(m.inicio),
                 color: 'text-purple-600',

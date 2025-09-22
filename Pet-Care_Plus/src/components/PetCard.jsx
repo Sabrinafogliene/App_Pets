@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/SupabaseAuthContext';
 import { Link } from 'react-router-dom';
 import { differenceInYears, differenceInMonths } from "date-fns";
 
+
 // Função auxiliar para obter informações da espécie
 const getSpeciesInfo = (especie) => {
   const speciesData = {
@@ -137,39 +138,23 @@ const PetCard = ({ pet, delay = 0, onEditClick }) => {
 
 
 
-        <div className="p-4 text-center flex flex-col">
-
-          <div className="flex flex-col items-center space-y-0">
-
-            <h3 className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mt-2">{pet.name}</h3>
-
-            <p className="text-gray-500 font-small text-xs">{pet.breed}</p>
-
+        <div className="p-4 text-center">
+          <div className="flex flex-col items-center space-y-0.5">
+            <h3 className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">{pet.name}</h3>
+            <p className="text-gray-500 font-light text-xs">{pet.breed}</p>
           </div>
 
-
-
-          <div className="flex justify-center text-gray-500 text-xs mt-4">
-
-            <div className="flex flex-col items-center flex-1">
-
+          <div className="flex justify-between items-center text-gray-500 text-xs mt-6 w-full">
+            <div className="flex flex-col items-center">
               <CalendarDays className="w-4 h-4 mb-1 text-gray-500" />
-
               <span>{calculateAge(pet.birthday)}</span>
+mm          </div>
 
-            </div>
-
-            <div className="flex flex-col items-center flex-1">
-
+            <div className="flex flex-col items-center">
               <Scale className="w-4 h-4 mb-1 text-gray-500" />
-
               <span>{pet.weight ? `${pet.weight} kg` : '--'}</span>
-
             </div>
-
           </div>
-
-
 
           <div className="flex justify-center flex-wrap gap-2 mt-4">
 

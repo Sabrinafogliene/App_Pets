@@ -37,8 +37,8 @@ const AuthRedirect = () => {
   }
 
   // Quando o perfil estiver carregado, redireciona com base no user_type
-  if (profile.user_type === 'veterinario') {
-    return <Navigate to="/painel" replace />;
+  if (profile.user_type === 'veterinario' || profile.user_type === 'vet') {
+    return <Navigate to="/vet/painel" replace />;
   }
 
   // O padrão é redirecionar para o dashboard do tutor
@@ -51,6 +51,7 @@ const AuthRedirect = () => {
 const PrivateRoutes = () => {
   const { profile } = useAuth();
   const userType = profile?.user_type;
+  const isVet = userType === 'veterinario' || userType === 'vet';
 
   // Renderiza as rotas dentro de um Layout compartilhado
   return (
@@ -58,29 +59,29 @@ const PrivateRoutes = () => {
       <Routes>
         {userType === 'tutor' && (
           <>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/meus-pets" element={<MeusPets />} />
-            <Route path="/vacinas" element={<Vacinas />} />
-            <Route path="/consultas" element={<Consultas />} />
-            <Route path="/medicamentos" element={<Medicamentos />} />
-            <Route path="/alimentacao" element={<Alimentacao />} />
-            <Route path="/peso" element={<Peso />} />
-            <Route path="/galeria" element={<Galeria />} />
-            <Route path="/acesso-veterinarios" element={<AcessoVeterinarios />} />
-            <Route path="/meu-pet/:id" element={<PerfilTutor />} />
+            <Route path="/app/dashboard" element={<Dashboard />} />
+            <Route path="/app/meus-pets" element={<MeusPets />} />
+            <Route path="/app/vacinas" element={<Vacinas />} />
+            <Route path="/app/consultas" element={<Consultas />} />
+            <Route path="/app/medicamentos" element={<Medicamentos />} />
+            <Route path="/app/alimentacao" element={<Alimentacao />} />
+            <Route path="/app/peso" element={<Peso />} />
+            <Route path="/app/galeria" element={<Galeria />} />
+            <Route path="/app/acesso-veterinarios" element={<AcessoVeterinarios />} />
+            <Route path="/app/meu-pet/:id" element={<PerfilTutor />} />
             {/* Redireciona qualquer rota não encontrada para o dashboard do tutor */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </>
         )}
-        {userType === 'veterinario' && (
+        {isVet && (
           <>
-            <Route path="/painel" element={<PainelVeterinario />} />
-            <Route path="/paciente/:id" element={<PerfilPaciente />} />
-            <Route path="/prontuario" element={<ProntuarioVet />} />
-            <Route path="/agenda" element={<AgendaVet />} />
-            <Route path="/configuracoes" element={<ConfiguracoesVet />} />
+            <Route path="/vet/painel" element={<PainelVeterinario />} />
+            <Route path="/vet/paciente/:id" element={<PerfilPaciente />} />
+            <Route path="/vet/prontuario" element={<ProntuarioVet />} />
+            <Route path="/vet/agenda" element={<AgendaVet />} />
+            <Route path="/vet/configuracoes" element={<ConfiguracoesVet />} />
             {/* Redireciona qualquer rota não encontrada para o painel do veterinário */}
-            <Route path="*" element={<Navigate to="/painel" replace />} />
+            <Route path="*" element={<Navigate to="/vet/painel" replace />} />
           </>
         )}
       </Routes>
