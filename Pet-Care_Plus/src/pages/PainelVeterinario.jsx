@@ -49,20 +49,28 @@ const PainelVeterinario = () => {
         <p className="text-gray-600">Acesse o histórico dos seus pacientes.</p>
       </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
           className="lg:col-span-2"
         >
-          <div className="flex items-center space-x-2">
-            <PawPrint className="w-5 h-5 text-blue-600" />
-            <h2 className="text-xl font-semibold text-gray-900">Meus Pacientes ({patients.length})</h2>
+          <div className="bg-white rounded-xl p-4 sm:p-6 card-shadow">
+            <div className="flex items-center space-x-2 mb-6">
+              <PawPrint className="w-5 h-5 text-blue-600" />
+              <h2 className="text-xl font-semibold text-gray-900">Meus Pacientes ({patients.length})</h2>
+            </div>
             {loading ? <div className='text-center py-8'>Carregando pacientes...</div> : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {patients.map((patient, index) => (
-                  <PetCard key={patient.id} patient={patient} index={index} />
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                {patients 
+                  .filter(p => p && p.id)
+                  .map((pet, index) => (
+                    <PetCard 
+                      key={pet.id} 
+                      pet={pet} 
+                      delay={index * 0.1} 
+                    />
                 ))}
               </div>
             )}

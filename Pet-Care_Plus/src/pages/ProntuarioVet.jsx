@@ -55,17 +55,17 @@ const ProntuarioVet = () => {
     fetchPatientData();
   }, [selectedPatientId, supabase]);
 
-  const renderRecords = (title, icon, records, fields) => (
+  const renderRecords = (title, icon, records, fields, colorClass) => (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        <CardTitle className={`text-sm font-medium ${colorClass}`}>{title}</CardTitle>
         {icon}
       </CardHeader>
       <CardContent>
         {records.length > 0 ? (
-          <ul className="space-y-2">
+          <ul className="space-y-2 border rounded p-2 max-h-64 overflow-y-auto">
             {records.map(record => (
-              <li key={record.id} className="text-sm p-2 bg-gray-50 rounded">
+              <li key={record.id} className="text-sm p-2">
                 {fields.map(field => (
                   <p key={field.key}>
                     <span className="font-semibold">{field.label}: </span>
@@ -104,30 +104,30 @@ const ProntuarioVet = () => {
         
         {selectedPatientId && !loading && patientData && (
           <div className="grid gap-6 md:grid-cols-2">
-            {renderRecords('Vacinas', <Syringe className="h-4 w-4 text-muted-foreground" />, patientData.vaccines, [
+            {renderRecords('Vacinas', <Syringe className="text-green-600 h-4 w-4" />, patientData.vaccines, [
               { key: 'name', label: 'Nome' },
               { key: 'date', label: 'Data', isDate: true },
               { key: 'next_dose', label: 'Próxima Dose', isDate: true },
-            ])}
-            {renderRecords('Consultas', <Stethoscope className="h-4 w-4 text-muted-foreground" />, patientData.consultations, [
+            ], 'text-green-600')}
+            {renderRecords('Consultas', <Stethoscope className="text-purple-600 h-4 w-4" />, patientData.consultations, [
               { key: 'type', label: 'Tipo' },
               { key: 'date', label: 'Data', isDate: true },
               { key: 'observations', label: 'Observações' },
-            ])}
-            {renderRecords('Medicamentos', <Pill className="h-4 w-4 text-muted-foreground" />, patientData.medications, [
+            ], 'text-purple-600')}
+            {renderRecords('Medicamentos', <Pill className="text-blue-600 h-4 w-4" />, patientData.medications, [
               { key: 'name', label: 'Nome' },
               { key: 'dosage', label: 'Dosagem' },
               { key: 'frequency', label: 'Frequência' },
-            ])}
-            {renderRecords('Peso', <Scale className="h-4 w-4 text-muted-foreground" />, patientData.weight, [
+            ], 'text-blue-600')}
+            {renderRecords('Peso', <Scale className="text-yellow-600 h-4 w-4" />, patientData.weight, [
               { key: 'weight', label: 'Peso (kg)' },
               { key: 'date', label: 'Data', isDate: true },
-            ])}
-            {renderRecords('Alimentação', <Utensils className="h-4 w-4 text-muted-foreground" />, patientData.food, [
+            ], 'text-yellow-600')}
+            {renderRecords('Alimentação', <Utensils className="text-orange-600 h-4 w-4" />, patientData.food, [
               { key: 'brand', label: 'Marca' },
               { key: 'type', label: 'Tipo' },
               { key: 'quantity', label: 'Quantidade' },
-            ])}
+            ], 'text-orange-600')}
           </div>
         )}
       </motion.div>

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Syringe, Calendar, HeartPulse, Bone, Scale, Camera, Plus, Edit } from 'lucide-react';
+import { Syringe, Calendar, HeartPulse, Bone, Scale, Plus, Edit } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/SupabaseAuthContext';

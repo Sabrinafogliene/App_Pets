@@ -89,6 +89,19 @@
   @apply bg-green-100 text-green-800;
 }
 
+.text-gradient{
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-primary {
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-image: linear-gradient(to right, var(--tw-gradient-from), var(--tw-gradient-to))
+}
+
 .alimentacao-theme {
 	--primary: 25.1 95% 53.1%;
 	--primary-foreground: 210 40% 98%;

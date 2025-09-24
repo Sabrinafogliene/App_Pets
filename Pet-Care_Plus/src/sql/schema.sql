@@ -184,7 +184,9 @@ returns table (
   birthday date,
   weight text,
   gender text,
-  file_path text
+  file_path text,
+  castrated boolean,
+  registro boolean
 )
 language plpgsql
 security definer
@@ -192,12 +194,10 @@ as $$
 begin
   return query
   select
-    p.id, p.name, p.species, p.breed, p.birthday, p.weight, p.gender, p.file_path
+    p.id, p.name, p.species, p.breed, p.birthday, p.weight, p.gender, p.file_path, p.castrated, p.registro
   from pets p
   join vet_access va
     on va.pet_id = p.id
-  join profiles pr
-    on pr.email = va.vet_email
   where
    va.vet_id = auth.uid()
     and va.is_active = true;
@@ -277,10 +277,19 @@ to authenticated
 with check (auth.uid() = user_id);
 
 drop policy if exists "Allow read access to their own records" on public.consultations;
-create policy "Allow read access to their own records"
+create policy "Vets can view permitted consultations"
 on public.consultations for select
 to authenticated
-using (auth.uid() = user_id);
+using (
+  auth.uid() = user_id OR
+  EXISTS (
+    SELECT 1 FROM public.vet_access
+    WHERE vet_access.vet_id = auth.uid()
+      AND vet_access.pet_id = pet_id
+      AND vet_access.is_active = true
+      AND 'consultas' = ANY(vet_access.permissions)
+  )
+);
 
 drop policy if exists "Allow update access to their own records" on public.consultations;
 create policy "Allow update access to their own records"
@@ -301,10 +310,19 @@ to authenticated
 using (auth.uid() = user_id);
 
 drop policy if exists "Allow authenticated users to select their own food records" on public.food_records;
-create policy "Allow authenticated users to select their own food records"
+create policy "Vets can view permitted food records"
 on public.food_records for select
 to authenticated
-using (auth.uid() = user_id);
+using (
+  auth.uid() = user_id OR
+  EXISTS (
+    SELECT 1 FROM public.vet_access
+    WHERE vet_access.vet_id = auth.uid()
+      AND vet_access.pet_id = food_records.pet_id
+      AND vet_access.is_active = true
+      AND 'alimentacao' = ANY (vet_access.permissions)
+  )
+);
 
 drop policy if exists "Allow authenticated users to insert their own food records" on public.food_records;
 create policy "Allow authenticated users to insert their own food records"
@@ -346,7 +364,16 @@ drop policy if exists "Allow authenticated users to read their own records" on p
 create policy "Allow authenticated users to read their own records"
 on public.medications for select
 to authenticated
-using (auth.uid() = user_id);  
+using (
+  auth.uid() = user_id OR
+  EXISTS (
+    SELECT 1 FROM public.vet_access
+    WHERE vet_access.vet_id = auth.uid()
+      AND vet_access.pet_id = medications.pet_id
+      AND vet_access.is_active = true
+      AND 'medicamentos' = ANY (vet_access.permissions)
+  )
+); 
 
 drop policy if exists "Allow authenticated users to insert their own records" on public.medications;
 create policy "Allow authenticated users to insert their own records"
@@ -440,7 +467,17 @@ drop policy if exists "Allow read access to their own records" on public.vaccine
 create policy "Allow read access to their own records"
 on public.vaccines for select
 to authenticated
-using (auth.uid() = user_id);
+using (
+  auth.uid() = user_id OR
+  EXISTS (
+    SELECT 1 FROM public.vet_access
+    WHERE vet_access.vet_id = auth.uid()
+      AND vet_access.pet_id = vaccines.pet_id
+      AND vet_access.is_active = true
+      AND 'vacinas' = ANY (vet_access.permissions)
+  )
+
+);
 
 drop policy if exists "Allow insert access to their own records" on public.vaccines;
 create policy "Allow insert access to their own records"
@@ -494,7 +531,16 @@ drop policy if exists "Allow authenticated users to select their own records" on
 create policy "Allow authenticated users to select their own records"
 on public.weight_records for select
 to authenticated
-using (auth.uid() = user_id);
+using (
+  auth.uid() = user_id OR
+  EXISTS (
+    SELECT 1 FROM public.vet_access
+    WHERE vet_access.vet_id = auth.uid()
+      AND vet_access.pet_id = weight_records.pet_id
+      AND vet_access.is_active = true
+      AND 'peso' = ANY (vet_access.permissions)
+  )
+);
 
 drop policy if exists "Allow authenticated users to insert their own records" on public.weight_records;
 create policy "Allow authenticated users to insert their own records"
