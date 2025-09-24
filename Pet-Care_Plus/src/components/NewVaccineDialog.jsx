@@ -14,9 +14,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
 import { cn } from '@/lib/utils'; 
+import { format } from 'date-fns';
 
 
-const NewVaccineDialog = ({ open, onOpenChange, onVaccineAdded, pets, className }) => {
+const NewVaccineDialog = ({ open, onOpenChange, onVaccineAdded, pets, className, vets }) => {
   const { toast } = useToast();
   const { user, supabase } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
@@ -29,23 +30,6 @@ const NewVaccineDialog = ({ open, onOpenChange, onVaccineAdded, pets, className 
     vet_id: '',
   });
 
-  useEffect(() => {
-    const fetchVets = async () => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, full_name')
-        .eq('user_type', 'vet');
-      if (error) {
-        toast({ variant: 'destructive', title: 'Erro ao buscar veterinários.' });
-      } else {
-        setVets(data);
-      }
-    };
-    if (open) {
-      fetchVets();
-    }
-  }, [open, supabase, toast]);
-
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
@@ -55,10 +39,11 @@ const NewVaccineDialog = ({ open, onOpenChange, onVaccineAdded, pets, className 
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user) {
-      toast({ variant: 'destructive', title: 'Você precisa estar logado.' });
+    if (!user || !formData.pet_id || !formData.name || !formData.date || !formData.vet_id) {
+      toast({ variant: 'destructive', title: 'Preencha todos os campos obrigatórios.' });
       return;
     }
     setIsLoading(true);
@@ -104,28 +89,40 @@ const NewVaccineDialog = ({ open, onOpenChange, onVaccineAdded, pets, className 
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="pet_id" className="text-right">Pet</Label>
               <Select onValueChange={(value) => handleSelectChange('pet_id', value)} value={formData.pet_id}>
-                <SelectTrigger className="col-span-3"><SelectValue placeholder="Selecione o pet" /></SelectTrigger>
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Selecione o pet" />
+                </SelectTrigger>
                 <SelectContent>
                   {pets.map(pet => <SelectItem key={pet.id} value={pet.id}>{pet.name}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">Nome da Vacina</Label>
+              <Label htmlFor="name" className="text-right">
+                Nome da Vacina
+              </Label>
               <Input id="name" value={formData.name} onChange={handleInputChange} className="col-span-3" placeholder="Ex: V10, Raiva" required />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="date" className="text-right">Data de Aplicação</Label>
+              <Label htmlFor="date" className="text-right">
+                Data de Aplicação
+              </Label>
               <Input id="date" type="date" value={formData.date} onChange={handleInputChange} className="col-span-3" required />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="next_dose" className="text-right">Próxima Dose</Label>
+              <Label htmlFor="next_dose" className="text-right">
+                Próxima Dose
+              </Label>
               <Input id="next_dose" type="date" value={formData.next_dose} onChange={handleInputChange} className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="vet_id" className="text-right">Veterinário</Label>
+              <Label htmlFor="vet_id" className="text-right">
+                Veterinário
+              </Label>
               <Select onValueChange={(value) => handleSelectChange('vet_id', value)} value={formData.vet_id}>
-                <SelectTrigger className="col-span-3"><SelectValue placeholder="Selecione o veterinário" /></SelectTrigger>
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Selecione o veterinário" />
+                </SelectTrigger>
                 <SelectContent>
                   {vets.map(vet => <SelectItem key={vet.id} value={vet.id}>{vet.full_name}</SelectItem>)}
                 </SelectContent>

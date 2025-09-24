@@ -15,11 +15,12 @@ const Vacinas = () => {
   const [selectedPet, setSelectedPet] = useState('todos');
   const [vaccines, setVaccines] = useState([]);
   const [myPets, setMyPets] = useState([]);
+  const [vets, setVets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isNewDialogOpen, setIsNewDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [currentVaccine, setCurrentVaccine] = useState(null);
-
+  const [eventsLastUpdated, setEventsLastUpdate] = useState(Date.now());
   const fetchVaccines = async () => {
     if (!user) return;
     setLoading(true);
@@ -59,8 +60,23 @@ const Vacinas = () => {
     setLoading(false);
   };
 
+  const fetchVets = async () => {
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, full_name')
+      .eq('user_type', 'vet');
+    if (error) {
+      console.error('Erro ao buscar veterinários:', error.message);
+    } else {
+      setVets(data || []);
+    }
+  };
+
   useEffect(() => {
     fetchVaccines();
+    fetchVets();
   }, [supabase, user, toast, selectedPet]);
 
   const handleEdit = (vaccine) => {
@@ -76,12 +92,13 @@ const Vacinas = () => {
 
   return (
     <>
-      <NewVaccineDialog
+      <NewVaccineDialog 
         open={isNewDialogOpen}
         onOpenChange={setIsNewDialogOpen}
         onVaccineAdded={fetchVaccines}
         pets={myPets}
         className="vacinas-theme"
+        vets={vets}
       />
       <EditVaccineDialog
         open={isEditDialogOpen}
@@ -89,6 +106,7 @@ const Vacinas = () => {
         onVaccineUpdated={fetchVaccines}
         vaccine={currentVaccine}
         className="vacinas-theme"
+        vets={vets}
       />
       <div className="space-y-6 vacinas-theme">
         <motion.div

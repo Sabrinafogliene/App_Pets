@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/SupabaseAuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { ptBR } from 'date-fns/locale';
 import { format, differenceInYears, differenceInMonths } from 'date-fns';
-import { cn } from '@/lib/utils';
+
 
 const borderMap = {
     resumo: "border-gray-600",
@@ -248,7 +248,7 @@ const PerfilPaciente = () => {
                 <ul>
                   {patient.vaccines.map(vaccine => (
                     <li key={vaccine.id} className="text-gray-600">
-                      Nome: {vaccine.name} - Data: {format(new Date(vaccine.date), 'dd/MM/yyyy', { locale: ptBR })} - Próxima: {vaccine.next_date ? format(new Date(vaccine.next_date), 'dd/MM/yyyy', { locale: ptBR }) : 'N/A'}
+                      Nome: {vaccine.name} - Data: {format(new Date(vaccine.date).setHours(12), 'dd/MM/yyyy', { locale: ptBR })} - Próxima: {vaccine.next_dose ? format(new Date(vaccine.next_dose).setHours(12), 'dd/MM/yyyy', { locale: ptBR }) : 'N/A'}
                     </li>
                   ))}
                 </ul>
@@ -264,7 +264,7 @@ const PerfilPaciente = () => {
                 <ul>
                   {patient.consultations.map(consultation => (
                     <li key={consultation.id} className="text-gray-600">
-                      Tipo: {consultation.type} | Data: {format(new Date(consultation.date), 'dd/MM/yyyy', { locale: ptBR })} - Veterinário: {consultation.vet_name} - Notas: {consultation.notes || 'N/A'}
+                      Tipo: {consultation.type} | Data: {format(new Date(consultation.date).setHours(12), 'dd/MM/yyyy', { locale: ptBR })} - Veterinário: {consultation.vet_name} - Notas: {consultation.notes || 'N/A'}
                     </li>
                   ))}
                 </ul>
@@ -297,7 +297,7 @@ const PerfilPaciente = () => {
                 <ul>
                   {patient.medications.map(medication => (
                     <li key={medication.id} className="text-gray-600">
-                      Nome: {medication.name} - Dosagem: {medication.dosage} - Frequência: {medication.frequency} - Início: {format(new Date(medication.inicio), 'dd/MM/yyyy', { locale: ptBR })} - Fim: {medication.end_date ? format(new Date(medication.termino), 'dd/MM/yyyy', { locale: ptBR }) : 'N/A'}
+                      Nome: {medication.name} - Dosagem: {medication.dosage} - Frequência: {medication.frequency} - Início: {format(new Date(medication.inicio).setHours(12), 'dd/MM/yyyy', { locale: ptBR })} - Fim: {medication.termino ? format(new Date(medication.termino).setHours(12), 'dd/MM/yyyy', { locale: ptBR }) : 'N/A'}
                     </li>
                   ))}
                 </ul>
@@ -313,7 +313,7 @@ const PerfilPaciente = () => {
                 <ul>
                   {patient.weight_records.map(weight => (
                     <li key={weight.id} className="text-gray-600">
-                      Peso: {weight.weight} kg - Data: {format(new Date(weight.date), 'dd/MM/yyyy', { locale: ptBR })}
+                      Peso: {weight.weight} kg - Data: {format(new Date(weight.date).setHours(12), 'dd/MM/yyyy', { locale: ptBR })}
                     </li>
                   ))}
                 </ul>

@@ -443,7 +443,7 @@ drop policy if exists "Users can view their own profile and others" on public.pr
 create policy "Users can view their own profile and others"
 on public.profiles for select
 to authenticated
-using ((auth.uid()= id) OR true);
+using ((auth.uid()= id) OR (user_type = 'vet'));
 
 drop policy if exists "Users can update their own profile" on public.profiles;
 create policy "Users can update their own profile"
