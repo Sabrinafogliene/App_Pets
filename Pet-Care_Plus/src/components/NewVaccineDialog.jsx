@@ -21,7 +21,6 @@ const NewVaccineDialog = ({ open, onOpenChange, onVaccineAdded, pets, className,
   const { toast } = useToast();
   const { user, supabase } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [vets, setVets] = useState([]);
   const [formData, setFormData] = useState({
     pet_id: '',
     name: '',
@@ -124,7 +123,13 @@ const NewVaccineDialog = ({ open, onOpenChange, onVaccineAdded, pets, className,
                   <SelectValue placeholder="Selecione o veterinário" />
                 </SelectTrigger>
                 <SelectContent>
-                  {vets.map(vet => <SelectItem key={vet.id} value={vet.id}>{vet.full_name}</SelectItem>)}
+                  {vets && vets.length > 0 ? (
+                    vets.map(vet => (
+                      <SelectItem key={vet.id} value={vet.id}>{vet.full_name}</SelectItem>
+                    ))
+                   ) : (
+                      <div className="p-2 text-sm text-gray-500">Nenhum veterinário disponível</div>
+                    )}
                 </SelectContent>
               </Select>
             </div>

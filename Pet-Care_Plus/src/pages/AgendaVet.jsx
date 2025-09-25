@@ -62,7 +62,7 @@ const CalendarGrid = ({ currentMonth, events }) => {
   );
 };
 
-const AgendaVet = () => {
+const AgendaVet = ({vaccines}) => {
   const { user, supabase } = useAuth();
   const { toast } = useToast();
   const [events, setEvents] = useState([]);
@@ -73,22 +73,21 @@ const AgendaVet = () => {
     const fetchEvents = async () => {
       if (!user) return;
       setLoading(true);
-
       const [vaccines, consultations] = await Promise.all([
         supabase.from('vaccines').select('id, name, date, vet_id, pet_id'),
         supabase.from('consultations').select('id, type, date, vet_id, pet_id'),
       ]);
       const myEvents = [
-        ...(vaccines.data || []).filter(v => v.vet_id === user.id).map(v => ({ id: `v-${v.id}`, title: v.name, date: v.date, type: 'vaccine', color: '#dcfce7' })),
-        ...(consultations.data || []).filter(c => c.vet_id === user.id).map(c => ({ id: `c-${c.id}`, title: c.type, date: c.date, type: 'consultation', color: '#f3e8ff' }))
+        ...(vaccines.data || []).filter(v => v.vet_id === user.id).map(v => ({ id: `v-${v.id}`, title: v.name, date: v.date, type: 'vaccine', color: '#d1fae5' })),
+        ...(consultations.data || []).filter(c => c.vet_id === user.id).map(c => ({ id: `c-${c.id}`, title: c.type, date: c.date, type: 'consultation', color: '#ede9fe' }))
       ];
-
       setEvents(myEvents);
       setLoading(false);
     };
     fetchEvents();
   }, [user, supabase, toast]);
-  
+
+        
   return (
     <div className="space-y-6">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>

@@ -20,7 +20,8 @@ const Vacinas = () => {
   const [isNewDialogOpen, setIsNewDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [currentVaccine, setCurrentVaccine] = useState(null);
-  const [eventsLastUpdated, setEventsLastUpdate] = useState(Date.now());
+
+  
   const fetchVaccines = async () => {
     if (!user) return;
     setLoading(true);
@@ -62,7 +63,6 @@ const Vacinas = () => {
 
   const fetchVets = async () => {
     if (!user) return;
-
     const { data, error } = await supabase
       .from('profiles')
       .select('id, full_name')
@@ -74,15 +74,15 @@ const Vacinas = () => {
     }
   };
 
-  useEffect(() => {
-    fetchVaccines();
-    fetchVets();
-  }, [supabase, user, toast, selectedPet]);
-
   const handleEdit = (vaccine) => {
     setCurrentVaccine(vaccine);
     setIsEditDialogOpen(true);
   };
+
+  useEffect(() => {
+    fetchVaccines();
+    fetchVets();
+  }, [supabase, user, toast, selectedPet]);
 
   const stats = {
     'Em Dia': vaccines.filter(v => v.status === 'Em Dia').length,
@@ -137,6 +137,7 @@ const Vacinas = () => {
                 <div className="text-xl sm:text-2xl font-bold">{stats['Atrasadas']}</div>
                 <div className="text-xs sm:text-sm font-medium">Atrasadas</div>
               </div>
+            
           </div>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
             <Select value={selectedPet} onValueChange={setSelectedPet}>

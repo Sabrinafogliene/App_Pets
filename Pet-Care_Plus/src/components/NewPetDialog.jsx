@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
 import { cn } from '@/lib/utils';
-import { Checkbox } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 const NewPetDialog = ({ open, onOpenChange, onPetAdded, className }) => {
   const { toast } = useToast();
   const { user, supabase } = useAuth();

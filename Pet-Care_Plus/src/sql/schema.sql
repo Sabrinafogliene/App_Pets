@@ -230,18 +230,22 @@ language plpgsql
 security definer
 as $$
 begin
-  INSERT INTO public.profiles (id, user_type, full_name, crmv, clinic)
+  INSERT INTO public.profiles (id, user_type, full_name, crmv, clinic, email)
   VALUES (
     new.id,
     new.raw_user_meta_data->>'user_type',
     new.raw_user_meta_data->>'full_name',
     new.raw_user_meta_data->>'crmv',
-    new.raw_user_meta_data->>'clinic'
+    new.raw_user_meta_data->>'clinic',
+    new.email
   );
   RETURN new;
 end;
 $$;
 grant execute on function public.handle_new_user() to authenticated;
+create trigger on_auth_user_created
+after insert on auth.users
+for each row execute function public.handle_new_user();
 
 DROP FUNCTION IF EXISTS public.invite_vet_by_email(text, uuid);
 create or replace function public.invite_vet_by_email(
