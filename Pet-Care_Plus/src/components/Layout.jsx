@@ -36,8 +36,11 @@ const Layout = ({ children }) => {
       <div className="flex-1 flex flex-col">
         <header className="md:hidden sticky top-0 z-40 flex items-center justify-between bg-white/80 backdrop-blur-sm p-4 border-b">
           <div className="flex items-center space-x-2">
-            <PawPrint className="w-6 h-6 text-pink-600" />
-            <span className="font-bold text-lg">PetCare+</span>
+            <img
+              src="/logotipo.png"
+              alt="Logotipo MyPetOn"
+              className="h-24 w-auto"
+            />
           </div>
           <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(true)}>
             <Menu className="w-6 h-6" />
