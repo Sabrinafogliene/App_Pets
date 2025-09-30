@@ -223,13 +223,15 @@ END;
 $$;
 grant execute on function public.grant_vet_access(text, uuid, uuid) to authenticated;
 
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 DROP FUNCTION IF EXISTS public.handle_new_user();
-create or replace function public.handle_new_user()
-returns trigger
-language plpgsql
-security definer
-as $$
-begin
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public
+AS $$
+BEGIN
   INSERT INTO public.profiles (id, user_type, full_name, crmv, clinic, email)
   VALUES (
     new.id,
@@ -240,12 +242,11 @@ begin
     new.email
   );
   RETURN new;
-end;
+END;
 $$;
-grant execute on function public.handle_new_user() to authenticated;
-create trigger on_auth_user_created
-after insert on auth.users
-for each row execute function public.handle_new_user();
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
 DROP FUNCTION IF EXISTS public.invite_vet_by_email(text, uuid);
 create or replace function public.invite_vet_by_email(

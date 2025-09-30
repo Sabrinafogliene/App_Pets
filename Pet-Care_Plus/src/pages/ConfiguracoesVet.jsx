@@ -6,6 +6,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { cn } from "@/lib/utils";
 
 const ConfiguracoesVet = () => {
   const { user, supabase } = useAuth();
@@ -76,7 +77,7 @@ const ConfiguracoesVet = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-2xl md:text-3xl font-bold text-blue-600 mb-2">Configurações</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-cyan-600 mb-2">Configurações</h1>
         <p className="text-gray-600">Gerencie suas informações de perfil e preferências.</p>
       </motion.div>
 
@@ -84,7 +85,7 @@ const ConfiguracoesVet = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="bg-white rounded-xl p-6 card-shadow max-w-2xl mx-auto"
+        className="bg-white rounded-xl p-6 card-shadow max-w-2xl mx-auto vet-theme"
       >
         {loading ? (
           <p>Carregando perfil...</p>

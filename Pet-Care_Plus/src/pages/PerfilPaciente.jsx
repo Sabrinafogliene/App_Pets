@@ -19,22 +19,22 @@ const borderMap = {
     galeria: "border-gray-600",
 };
 
-  const getSpeciesInfo = (especie) => {
-    const normalized = especie.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-    const speciesData = {
-      cachorro: { icon: "🐕", nome: "Cachorro", color: "bg-amber-100 text-amber-800" },
-      gato: { icon: "🐈", nome: "Gato", color: "bg-purple-100 text-purple-800" },
-      passaro: { icon: "🦜", nome: "Pássaro", color: "bg-blue-100 text-blue-800" },
-      coelho: { icon: "🐇", nome: "Coelho", color: "bg-pink-100 text-pink-800" },
-      peixe: { icon: "🐟", nome: "Peixe", color: "bg-cyan-100 text-cyan-800" },
-      cavalo: { icon: "🐎", nome: "Cavalo", color: "bg-pink-90 text-pink-600" },
-      lhama: { icon: "🦙", nome: "Lhama", color: "bg-blue-90 text-blue-600" },
-      cabra: { icon: "🐐", nome: "Cabra", color: "bg-amber-90 text-amber-600" },
-      bovino: { icon: "🐄", nome: "Bovino", color: "bg-cyan-90 text-cyan-700" },
-      porco: { icon: "🐖", nome: "Porco", color: "bg-pink-90 text-pink-600" },
-      réptil: { icon: "🐢", nome: "Réptil", color: "bg-green-100 text-green-800" },
-      roedor: { icon: "🐀", nome: "Roedor", color: "bg-purple-90 text-purple-600" },
-      outro: { icon: "🐾", nome: "Outro", color: "bg-gray-100 text-gray-800" }
+const getSpeciesInfo = (especie) => {
+  const normalized = especie.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  const speciesData = {
+    cachorro: { icon: "🐕", nome: "Cachorro", color: "bg-amber-100 text-amber-800" },
+    gato: { icon: "🐈", nome: "Gato", color: "bg-purple-100 text-purple-800" },
+    passaro: { icon: "🦜", nome: "Pássaro", color: "bg-blue-100 text-blue-800" },
+    coelho: { icon: "🐇", nome: "Coelho", color: "bg-pink-100 text-pink-800" },
+    peixe: { icon: "🐟", nome: "Peixe", color: "bg-cyan-100 text-cyan-800" },
+    cavalo: { icon: "🐎", nome: "Cavalo", color: "bg-teal-100 text-pink-600" },
+    lhama: { icon: "🦙", nome: "Lhama", color: "bg-sky-100 text-blue-600" },
+    cabra: { icon: "🐐", nome: "Cabra", color: "bg-indigo-100 text-amber-600" },
+    bovino: { icon: "🐄", nome: "Bovino", color: "bg-cyan-100 text-cyan-700" },
+    porco: { icon: "🐖", nome: "Porco", color: "bg-rose-100 text-pink-600" },
+    réptil: { icon: "🐢", nome: "Réptil", color: "bg-emerald-100 text-green-800" },
+    roedor: { icon: "🐀", nome: "Roedor", color: "bg-purple-100 text-purple-600" },
+    outro: { icon: "🐾", nome: "Outro", color: "bg-gray-100 text-gray-800" }
   };
   if (normalized === "passaro" || normalized === "pássaro") return speciesData.passaro;
   return speciesData[normalized] || speciesData.outro;
@@ -123,12 +123,12 @@ const PerfilPaciente = () => {
           <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
             <img 
               alt={patient.name}
-              className="w-20 h-20 rounded-full object-cover"
+              className="w-24 h-24 rounded-full object-cover border-4 border-x-indigo-500 border-double border-opacity-40 border-card"
               src={imageUrl || 'https://placehold.co/150x150/9ca3af/9ca3af?text=...'} />
             
             <div className="flex-1 text-center sm:text-left">
-              <h1 className={`text-lg font-bold bg-clip-text ${speciesInfo.color}`}>{patient.name}</h1>
-              <p className="text-gray-500 mb-3">{patient.breed}</p>
+              <h1 className="text-xl font-bold text-indigo-600">{patient.name}</h1>
+              <p className="text-gray-500 mb-3 text-xs">{patient.breed}</p>
               <div className="flex flex-wrap justify-center sm:justify-start items-center gap-2">
                 <span className="status-badge bg-yellow-100 text-yellow-600"><Calendar className="inline w-4 h-4 mr-1"/>{calculateAge(patient.birthday || '')}</span>
                 <span className="status-badge bg-blue-100 text-blue-600"><Scale className="inline w-4 h-4 mr-1"/>{patient.weight}Kg</span>
@@ -162,7 +162,7 @@ const PerfilPaciente = () => {
             </div>
     
           <TabsContent value="resumo" className="mt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}

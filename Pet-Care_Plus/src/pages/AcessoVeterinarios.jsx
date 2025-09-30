@@ -36,7 +36,15 @@ const AcessoVeterinarios = () => {
 
     const { data, error } = await supabase
       .from('vet_access')
-      .select('*, pet:pets(name, species, file_path)')
+      .select(`
+        id,
+        created_at,
+        permissions,
+        is_active,
+        vet_id, 
+        pet:pets(name, species, file_path)
+        vet:profiles(full_name, email)
+      `)
       .eq('tutor_id', user.id);
 
     if (error) {
@@ -45,31 +53,24 @@ const AcessoVeterinarios = () => {
         title: "Erro ao buscar acessos",
         description: error.message,
       });
-      console.error(error);
+      console.error("Erro na busca principal:", error);
       setAccessList([]);
     } else {
       // Busca os nomes dos veterinários pelo email
-      const formattedAccessList = await Promise.all((data || []).map(async (item) => {
-        let vetName = 'Veterinário pendente';
-        let vetEmail = item.vet_email || '';
-        if (vetEmail) {
-          const { data: vetProfile } = await supabase
-            .from('profiles')
-            .select('full_name')
-            .eq('email', vetEmail)
-            .single();
-          if (vetProfile && vetProfile.full_name) vetName = vetProfile.full_name;
-        }
+      const formattedAccessList = (data || []).map(item => {
+        const vetProfile = item.vet;
+        
         return {
           id: item.id,
-          name: vetName,
+          name: item.vet?.full_name || 'Veterinário (Perfil Pendente)',
           pet: item.pet?.name || 'Pet não encontrado',
-          email: vetEmail || 'E-mail não disponível',
+          email: item.vet?.email || 'E-mail não disponível',
           grantedDate: new Date(item.created_at).toLocaleDateString('pt-BR'),
           permissions: item.permissions || [],
           isActive: item.is_active,
+          vet_id: item.vet_id
         };
-      }));
+      });
       setAccessList(formattedAccessList);
     }
     setLoading(false);
@@ -217,7 +218,7 @@ const AcessoVeterinarios = () => {
                   <div className="mt-4">
                      <h4 className="text-sm font-medium text-gray-800 mb-2">Permissões</h4>
                      <div className="flex flex-wrap gap-1">
-                        {vet.permissions.length > 0 ? vet.permissions.map((permission, idx) => (
+                        {(vet.permissions && vet.permissions.length > 0) ? vet.permissions.map((permission, idx) => (
                           <span
                             key={idx}
                             className="px-2 py-1 bg-cyan-100 text-cyan-800 text-xs rounded-full"

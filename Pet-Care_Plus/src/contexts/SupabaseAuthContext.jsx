@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react';
-import { supabase } from '@/supabaseClient.js';
+import { supabase } from '@/supabaseClient.js'; // Certifique-se que este caminho está correto
 
-const AuthContext = createContext(undefined);
+const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [session, setSession] = useState(null);
@@ -11,69 +11,62 @@ export const AuthProvider = ({ children }) => {
   const fetchUserProfile = useCallback(async (user) => {
     if (!user) return null;
     try {
-      const { data: profileData, error: profileError } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('id, user_type, full_name')
         .eq('id', user.id)
         .single();
       
-      if (profileError) {
-        console.warn("Could not fetch profile:", profileError.message);
-        return null;
-      }
-      return profileData;
+      if (error) throw error;
+      return data;
     } catch (error) {
-      console.error("Error fetching profile:", error.message);
+      console.warn("Erro ao buscar perfil:", error.message);
       return null;
     }
   }, []);
 
+
   useEffect(() => {
-    const getInitialSession = async () => {
-      const { data: { session: initialSession } } = await supabase.auth.getSession();
-      console.log('Sessão inicial:', initialSession);
+    setLoading(true);
+
+    
+    supabase.auth.getSession().then(async ({ data: { session: initialSession } }) => {
       setSession(initialSession);
       if (initialSession?.user) {
         const initialProfile = await fetchUserProfile(initialSession.user);
-        console.log('Perfil inicial:', initialProfile);
         setProfile(initialProfile);
       }
       setLoading(false);
-    };
+    });
 
-    getInitialSession();
-
+  
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
-        console.log('Evento de autenticação:', event, newSession);
         setSession(newSession);
-        
         if (newSession?.user) {
-          const newProfile = await fetchUserProfile(newSession.user);
-          console.log('Perfil após mudança de sessão:', newProfile);
-          setProfile(newProfile);
+          const userProfile = await fetchUserProfile(newSession.user);
+          setProfile(userProfile);
         } else {
-          setProfile(null);
+          setProfile(null); 
         }
-        if (loading) setLoading(false);
+        setLoading(false);
       }
     );
 
+    
     return () => {
-      subscription.unsubscribe();
+      subscription?.unsubscribe();
     };
-  }, [fetchUserProfile, loading]);
+  }, [fetchUserProfile]); 
 
-  const signIn = useCallback((email, password) => {
-    return supabase.auth.signInWithPassword({ email, password });
-  }, []);
-
+  const signIn = useCallback((email, password) => supabase.auth.signInWithPassword({ email, password }), []);
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
     setProfile(null);
     setSession(null);
   }, []);
 
+ 
   const value = useMemo(() => ({
     loading, 
     session,

@@ -15,22 +15,27 @@ const PainelVeterinario = () => {
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
 
+useEffect(() => {  
   const fetchPatients = async () => {
-      if (!user) return;
-      setLoading(true);
-      const { data, error } = await supabase.rpc('get_vet_patients');
- 
+    try {
+      const {data, error } = await supabase.rpc('get_vet_patients');
       if (error) {
         toast({ variant: 'destructive', title: 'Erro ao buscar pacientes.', description: error.message });
       } else {
-        setPatients(data || []);
+        setPatients(data);
       }
-      setLoading(false);
-    };
-
-    useEffect(() => {
-      fetchPatients();
-  }, [supabase, user, toast]);
+    } catch (err) {
+      toast ({
+        variant: 'destructive',
+        title: 'Erro inesperado',
+        description: err.message,
+      });
+    }
+ };
+ if (supabase && user) {
+    fetchPatients();
+ }
+}, [supabase, user]);
 
   const handleSendInvite = () => {
     toast({
@@ -45,7 +50,7 @@ const PainelVeterinario = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-2xl md:text-3xl font-bold text-blue-600 mb-2">Painel do Veterinário</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-cyan-600 mb-2">Painel do Veterinário</h1>
         <p className="text-gray-600">Acesse o histórico dos seus pacientes.</p>
       </motion.div>
 
@@ -58,8 +63,8 @@ const PainelVeterinario = () => {
         >
           <div className="bg-white rounded-xl p-4 sm:p-6 card-shadow">
             <div className="flex items-center space-x-2 mb-6">
-              <PawPrint className="w-5 h-5 text-blue-600" />
-              <h2 className="text-xl font-semibold text-gray-900">Meus Pacientes ({patients.length})</h2>
+              <PawPrint className="w-5 h-5 text-cyan-600" />
+              <h2 className="text-xl font-semibold text-gray-600">Meus Pacientes ({patients.length})</h2>
             </div>
             {loading ? <div className='text-center py-8'>Carregando pacientes...</div> : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -84,21 +89,21 @@ const PainelVeterinario = () => {
           className="space-y-6"
         >
           <div className="bg-white rounded-xl p-6 card-shadow">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Ações Rápidas</h2>
+            <h2 className="text-xl font-semibold text-gray-600 mb-4">Ações Rápidas</h2>
             <div className="space-y-3">
               <Link to="/vet/prontuario">
-                <Button variant="outline" className="w-full justify-start"><BookOpen className="w-4 h-4 mr-2" /> Prontuário</Button>
+                <Button variant="outline" className="w-full justify-start"><BookOpen className="w-4 h-4 mr-2 text-cyan-600"/> Prontuário</Button>
               </Link>
               <Link to="/vet/agenda">
-                <Button variant="outline" className="w-full justify-start"><Calendar className="w-4 h-4 mr-2" /> Agenda</Button>
+                <Button variant="outline" className="w-full justify-start"><Calendar className="w-4 h-4 mr-2 text-cyan-600" /> Agenda</Button>
               </Link>
               <Link to="/vet/configuracoes">
-                <Button variant="outline" className="w-full justify-start"><Settings className="w-4 h-4 mr-2" /> Configurações</Button>
+                <Button variant="outline" className="w-full justify-start"><Settings className="w-4 h-4 mr-2 text-cyan-600" /> Configurações</Button>
               </Link>
             </div>
           </div>
           <div className="bg-white rounded-xl p-6 card-shadow">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Convidar um Tutor</h2>
+            <h2 className="text-xl font-semibold text-gray-600 mb-6">Convidar um Tutor</h2>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -111,7 +116,7 @@ const PainelVeterinario = () => {
               </div>
               <Button 
                 onClick={handleSendInvite}
-                className="w-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center"
+                className="w-full bg-cyan-600 hover:bg-cyan-700 flex items-center justify-center"
               >
                 <Send className="w-4 h-4 mr-2" />
                 Enviar Convite

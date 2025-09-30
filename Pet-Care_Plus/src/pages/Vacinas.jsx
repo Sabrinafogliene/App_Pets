@@ -49,7 +49,7 @@ const Vacinas = () => {
     } else {
       setVaccines(data.map(v => ({
         ...v,
-        pet: v.pets.name,
+        pet: v.pets?.name || 'Pet não encontrado',
         name: v.name,
         appliedDate: new Date(v.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' }),
         nextDate: v.next_dose ? new Date(v.next_dose).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : 'N/A',
@@ -82,7 +82,7 @@ const Vacinas = () => {
   useEffect(() => {
     fetchVaccines();
     fetchVets();
-  }, [supabase, user, toast, selectedPet]);
+  }, [supabase, user, selectedPet]);
 
   const stats = {
     'Em Dia': vaccines.filter(v => v.status === 'Em Dia').length,

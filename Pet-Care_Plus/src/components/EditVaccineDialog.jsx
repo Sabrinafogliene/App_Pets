@@ -88,7 +88,7 @@ const EditVaccineDialog = ({ open, onOpenChange, onVaccineUpdated, vaccine, vets
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={cn("sm:max-w-[425px]", className)}>
+      <DialogContent className={cn("sm:max-w-[425px] vacinas-theme", className)}>
         <DialogHeader>
           <DialogTitle className="text-primary">Editar Vacina</DialogTitle>
           <DialogDescription>

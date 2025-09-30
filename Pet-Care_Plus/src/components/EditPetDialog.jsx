@@ -131,7 +131,7 @@ const EditPetDialog = ({ open, onOpenChange, onPetUpdated, pet, className }) => 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={cn("sm:max-w-[425px]", className)}>
+      <DialogContent className={cn("sm:max-w-[425px] pets-theme", className)}>
         <DialogHeader>
           <DialogTitle className="text-primary">Editar Pet</DialogTitle>
           <DialogDescription>

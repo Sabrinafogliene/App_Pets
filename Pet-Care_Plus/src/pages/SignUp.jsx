@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
-import { PawPrint, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet';
 
@@ -146,7 +146,7 @@ const SignUp = () => {
 	return (
 		<>
 			<Helmet>
-				<title>Crie sua Conta - PetCare+</title>
+				<title>Crie sua Conta - MyPetOn</title>
 				<meta name="description" content="Crie sua conta no PetCare+ e comece a cuidar do seu pet." />
 			</Helmet>
 			<div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-100 to-blue-100 p-4">
@@ -154,16 +154,19 @@ const SignUp = () => {
 					initial={{ opacity: 0, y: -50 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.5 }}
-					className="w-full max-w-md p-8 space-y-6 bg-white rounded-2xl shadow-lg"
+					className="w-full max-w-md p-5 space-y-6 bg-white rounded-2xl shadow-lg"
 				>
 					<div className="text-center">
-						<PawPrint className="mx-auto h-12 w-12 text-pink-600" />
-						<h1 className="mt-4 text-3xl font-bold tracking-tight text-gray-900">
+						<img
+							src="/logotipo.png"
+							alt="Logotipo MyPetOn"
+							className="mx-auto h-32 w-auto" />
+						<h1 className="mt-0 text-2xl font-bold tracking-tight text-gray-700">
 							Crie sua conta
 						</h1>
-						<p className="mt-2 text-sm text-gray-600">
+						<p className="mt-1 text-sm text-gray-600">
 							Já tem uma conta?{' '}
-							<Link to="/login" className="font-medium text-pink-600 hover:text-pink-500">
+							<Link to="/login" className="font-medium text-teal-500 hover:text-teal-500">
 								Faça login
 							</Link>
 						</p>
@@ -215,7 +218,7 @@ const SignUp = () => {
 						)}
 
 						<div>
-							<Button type="submit" className="w-full" disabled={loading}>
+							<Button type="submit" className="w-full bg-teal-500" disabled={loading}>
 								{loading ? 'Criando conta...' : 'Criar Conta'}
 							</Button>
 						</div>

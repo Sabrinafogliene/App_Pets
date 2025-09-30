@@ -55,6 +55,7 @@ const calculateAge = (birthday) => {
 const PetListItem = ({ pet }) => {
     const { supabase, user } = useAuth();
     const [imageUrl, setImageUrl] = useState(null);
+    const navigate = useNavigate();
     const speciesInfo = getSpeciesInfo(pet.species.toLowerCase());
 
     useEffect(() => {
@@ -74,42 +75,45 @@ const PetListItem = ({ pet }) => {
         return null;
     }
 
-    const profileLink = user?.user_metadata?.user_type === 'vet' ? `/paciente/${pet.id}` : `/meu-pet/${pet.id}`;
+    const profileLink = user?.user_metadata?.user_type === 'vet' ? `/vet/paciente/${pet.id}` : `/app/meu-pet/${pet.id}`;
+    const handleNavigate = () => {
+        navigate(profileLink);
+    };
 
     return (
         <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
+            onClick={handleNavigate}
+            className="flex items-center space-x-4 p-4 rounded-lg bg-white card-shadow cursor-pointer hover:bg-gray-50 transitions-colors"
         >
-            <Link to={profileLink} className="flex items-center space-x-4 p-4 rounded-lg bg-white card-shadow">
-                <div className="relative">
-                    <img alt={pet.name} className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg" src={imageUrl || 'https://placehold.co/100x100/fecaca/fecaca?text=...'} />
-                    {pet.species && (
-                        <div className="absolute -bottom-1 -right-1 w-6 h-6 border-white bg-white rounded-full flex items-center justify-center shadow-md">
-                            <span className="text-xs">{speciesInfo.icon}</span>
-                        </div>
-                     )}
-                </div>
-                <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-900 truncate">{pet.name}</p>
-                    <p className="text-xs text-gray-500">{pet.breed}</p>
-                </div>
-                <div className="flex flex-col items-end">
-                    <div className="flex items-center space-x-1 mb-3">
-                        <CalendarDays className="w-4 h-4 text-gray-500" />
-                        <span className="text-xs text-gray-500">
-                            {calculateAge(pet.birthday || '')}
-                        </span>
+            <div className="relative">
+                <img alt={pet.name} className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg" src={imageUrl || 'https://placehold.co/100x100/fecaca/fecaca?text=...'} />
+                {pet.species && (
+                    <div className="absolute -bottom-1 -right-1 w-6 h-6 border-white bg-white rounded-full flex items-center justify-center shadow-md">
+                        <span className="text-xs">{speciesInfo.icon}</span>
                     </div>
-                    <div className="flex items-center space-x-1">
-                        <Scale className="w-4 h-4 text-gray-500" />
-                        <span className="text-xs text-gray-500">
-                            {pet.weight ? `${pet.weight}Kg` : '--'}
-                        </span>
-                    </div>
+                )}
+            </div>
+            <div className="flex-1 min-w-0">
+                <p className="font-medium text-gray-900 truncate">{pet.name}</p>
+                <p className="text-xs text-gray-500">{pet.breed}</p>
+            </div>
+            <div className="flex flex-col items-end">
+                <div className="flex items-center space-x-1 mb-3">
+                    <CalendarDays className="w-4 h-4 text-gray-500" />
+                    <span className="text-xs text-gray-500">
+                        {calculateAge(pet.birthday || '')}
+                    </span>
                 </div>
-            </Link>
+                <div className="flex items-center space-x-1">
+                    <Scale className="w-4 h-4 text-gray-500" />
+                    <span className="text-xs text-gray-500">
+                        {pet.weight ? `${pet.weight}Kg` : '--'}
+                    </span>
+                </div>
+            </div>
         </motion.div>
     );
 };
@@ -134,7 +138,7 @@ const Dashboard = () => {
 
     const fetchDashboardData = async () => {
         setIsLoading(true);
-        if (!user) {
+        if (!user || !user.id) {
             setIsLoading(false);
             return;
         }
@@ -158,7 +162,7 @@ const Dashboard = () => {
             supabase.from('vaccines').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
             supabase.from('consultations').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
             supabase.from('medications').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('active', true),
-            supabase.from('pets').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(4),
+            supabase.from('pets').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
             supabase.from('consultations').select('*, pets(name)').eq('user_id', user.id).gte('date', sixMonthsAgo),
             supabase.from('vaccines').select('*, pets(name)').eq('user_id', user.id).gte('date', sixMonthsAgo),
             supabase.from('medications').select('*, pets(name)').eq('user_id', user.id).gte('inicio', sixMonthsAgo)
@@ -375,7 +379,7 @@ const Dashboard = () => {
 
             <div className="space-y-6">
                 <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-                    <h1 className="text-2xl md:text-3xl font-bold text-pink-600 mb-2">Dashboard PetCare+</h1>
+                    <h1 className="text-2xl md:text-3xl font-bold text-pink-600 mb-2">Dashboard My Pet On</h1>
                     <p className="text-gray-600">Acompanhe a saúde e bem-estar dos seus pets em um só lugar</p>
                 </motion.div>
 
