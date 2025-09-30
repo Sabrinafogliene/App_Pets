@@ -303,10 +303,10 @@ const Dashboard = () => {
     };
 
     const stats = [
-        { icon: PawPrint, title: 'Pets Cadastrados', value: statsData.pets, color: 'text-white', bgColor: 'bg-gradient-to-br from-pink-400 to-pink-600', delay: 0.1, path: '/meus-pets' },
-        { icon: Syringe, title: 'Vacinas Registradas', value: statsData.vaccines, color: 'text-white', bgColor: 'bg-gradient-to-br from-green-400 to-green-600', delay: 0.2, path: '/vacinas' },
-        { icon: Calendar, title: 'Consultas Agendadas', value: statsData.consultations, color: 'text-white', bgColor: 'bg-gradient-to-br from-purple-400 to-purple-600', delay: 0.3, path: '/consultas' },
-        { icon: HeartPulse, title: 'Tratamentos Ativos', value: statsData.treatments, color: 'text-white', bgColor: 'bg-gradient-to-br from-blue-400 to-blue-600', delay: 0.4, path: '/medicamentos' },
+        { icon: PawPrint, title: 'Pets Cadastrados', value: statsData.pets, color: 'text-white', bgColor: 'bg-gradient-to-br from-pink-400 to-pink-600', delay: 0.1, path: '/app/meus-pets' },
+        { icon: Syringe, title: 'Vacinas Registradas', value: statsData.vaccines, color: 'text-white', bgColor: 'bg-gradient-to-br from-green-400 to-green-600', delay: 0.2, path: '/app/vacinas' },
+        { icon: Calendar, title: 'Consultas Agendadas', value: statsData.consultations, color: 'text-white', bgColor: 'bg-gradient-to-br from-purple-400 to-purple-600', delay: 0.3, path: '/app/consultas' },
+        { icon: HeartPulse, title: 'Tratamentos Ativos', value: statsData.treatments, color: 'text-white', bgColor: 'bg-gradient-to-br from-blue-400 to-blue-600', delay: 0.4, path: '/app/medicamentos' },
     ];
 
     const themeMap = {

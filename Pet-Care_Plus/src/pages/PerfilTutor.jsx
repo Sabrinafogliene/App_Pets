@@ -149,12 +149,13 @@ const PerfilTutor = () => {
 
             <div className="space-y-6">
                 <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="bg-white rounded-xl p-6 card-shadow">
-                    <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
-                        <img alt={pet.name} className="w-24 h-24 rounded-full object-cover border-4 border-x-teal-500 border-double border-opacity-40 border-card" src={imageUrl || 'https://placehold.co/150x150/9ca3af/9ca3af?text=...'} />
-                        <div className="flex-1 text-center sm:text-left">
-                            <h1 className="text-xl font-bold text-teal-600">{pet.name}</h1>
+                    <div className="flex flex-col items-center space-y-4 md:flex-row md:items-start md:space-y-0 md:space-x-6">
+                        <img alt={pet.name} className="w-24 h-24 rounded-full object-cover border-4 border-x-teal-500 border-double border-opacity-40 border-card flex-shrink-0" src={imageUrl || 'https://placehold.co/150x150/9ca3af/9ca3af?text=...'} />
+                        <div className="w-full flex flex-col items-center md:items-start">
+                          <div className="text-center md:text-left">
+                            <h1 className="text-2xl font-bold text-teal-600">{pet.name}</h1>
                             <p className="text-gray-500 mb-3 text-xs">{pet.breed}</p>
-                            <div className="flex flex-wrap justify-center sm:justify-start items-center gap-2">
+                            <div className="flex flex-wrap justify-center sm:justify-start items-center gap-2 md:justify-start">
                                 <span className="status-badge bg-yellow-100 text-yellow-600"><Calendar className="inline w-4 h-4 mr-1" />{calculateAge(pet.birthday )}</span>
                                 <span className="status-badge bg-blue-100 text-blue-600"><Scale className="inline w-4 h-4 mr-1" />{pet.weight}Kg</span>
                                 <span className="status-badge bg-purple-100 text-purple-600">
@@ -164,9 +165,10 @@ const PerfilTutor = () => {
                                 <span className="status-badge bg-green-100 text-green-600">{pet.castrated ? 'Castrado' : 'Não Castrado'}</span>
                                 <span className={`status-badge ${speciesInfo.color}`}>{speciesInfo.icon} {speciesInfo.nome}</span>
                             </div>
+                          </div>
                         </div>
                         {isOwner && (
-                            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
+                            <div className="w-full flex flex-col space-y-2 pt-4 md:w-auto md:flex-col md:space-y-2 md:pt-0 md:space-x-0 lg:flex-row lg:space-y-0 lg:space-x-2">
                                 <Link to="/meus-pets" className="w-full">
                                     <Button variant="outline" className="w-full text-pink-500">Voltar</Button>
                                 </Link>
@@ -178,8 +180,7 @@ const PerfilTutor = () => {
 
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
                     <Tabs defaultValue="resumo" className="w-full">
-                        <div className="overflow-x-auto pb-2">
-                            <TabsList className="grid w-max grid-cols-7 bg-white-100 rounded-s-m p-1 gap-x-2">
+                        <TabsList className="h-auto flex flex-wrap justify-center bg-transparent p-1 gap-2">
                                 <TabsTrigger value="resumo" className={`${baseTabClass} ${tabClasses.resumo}`}>Resumo</TabsTrigger>
                                 <TabsTrigger value="vacinas" className={`${baseTabClass} ${tabClasses.vacinas}`}>Vacinas</TabsTrigger>
                                 <TabsTrigger value="consultas" className={`${baseTabClass} ${tabClasses.consultas}`}>Consultas</TabsTrigger>
@@ -188,7 +189,7 @@ const PerfilTutor = () => {
                                 <TabsTrigger value="peso" className={`${baseTabClass} ${tabClasses.peso}`}>Peso</TabsTrigger>
                                 <TabsTrigger value="galeria" className={`${baseTabClass} ${tabClasses.galeria}`}>Galeria</TabsTrigger>
                             </TabsList>
-                        </div>
+                        
                         
                         {/* INÍCIO DO CONTEÚDO RESTAURADO */}
                         <TabsContent value="resumo" className="mt-6">

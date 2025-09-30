@@ -17,7 +17,8 @@ import {
   Settings,
   LogOut,
   X,
-  BookOpen
+  BookOpen,
+  PlayCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
@@ -31,12 +32,12 @@ const Sidebar = ({ userType, isOpen, setIsOpen }) => {
   useEffect(() => {
     if (user) {
       const name = user.user_metadata?.full_name || "Usuário";
-      const avatar = name.split(' ').map(n => n[0]).slice(0, 2).join('');
+            
       setProfile({
         name: name,
         email: user.email,
-        avatar: avatar,
-        avatarBg: userType === 'tutor' ? "bg-gradient-to-br from-purple-500 to-pink-500" : "bg-gradient-to-br from-blue-500 to-cyan-500"
+        avatar: null,
+        avatarBg: userType === 'tutor' ? "bg-gradient-to-br from-teal-500 to-teal-500" : "bg-gradient-to-br from-teal-500 to-teal-500"
       });
     }
   }, [user, userType]);
@@ -129,7 +130,7 @@ const Sidebar = ({ userType, isOpen, setIsOpen }) => {
       <div className="p-4 border-t border-gray-100">
         <div className="flex items-center space-x-3 mb-4">
           <div className={cn("w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0", profile.avatarBg)}>
-            <span className="text-white text-xs font-medium">{profile.avatar}</span>
+            <PlayCircle className="w-5 h-5 text-teal-500 bg-white rounded-full"/>
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-gray-800 truncate">{profile.name}</p>
