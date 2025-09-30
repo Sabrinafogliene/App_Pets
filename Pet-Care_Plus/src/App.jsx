@@ -1,6 +1,5 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
 import { Toaster } from '@/components/ui/toaster';
 import Layout from '@/components/Layout';
 import Dashboard from '@/pages/Dashboard';
@@ -14,22 +13,28 @@ import Galeria from '@/pages/Galeria';
 import AcessoVeterinarios from '@/pages/AcessoVeterinarios';
 import PainelVeterinario from '@/pages/PainelVeterinario';
 import PerfilPaciente from '@/pages/PerfilPaciente';
-import PerfilTutor from '@/pages/PerfilTutor'; // Corrigido de meu-pet para PerfilTutor
+import PerfilTutor from '@/pages/PerfilTutor';
 import Login from '@/pages/Login';
 import SignUp from '@/pages/SignUp';
 import ProntuarioVet from '@/pages/ProntuarioVet';
 import AgendaVet from '@/pages/AgendaVet';
 import ConfiguracoesVet from '@/pages/ConfiguracoesVet';
-import DefinirSenha from './pages/DefinirSenha'; // Importação já estava correta
+import DefinirSenha from '@/pages/DefinirSenha'; 
 import { useAuth } from '@/contexts/SupabaseAuthContext';
-import AuthCallback from './pages/AuthCallback';
+import AuthCallback from '@/pages/AuthCallback';
 
 const AuthRedirect = () => {
-  const { profile, loading } = useAuth();
-  if (loading || !profile) {
+  const { profile, loading, needsPasswordSetup } = useAuth();
+  
+  if (loading) {
     return <div className="flex justify-center items-center h-screen">Carregando perfil...</div>;
   }
-  if (profile.user_type === 'veterinario' || profile.user_type === 'vet') {
+
+  if (needsPasswordSetup) {
+    return <Navigate to="/definir-senha" replace />;
+  }
+
+  if (profile?.user_type === 'veterinario' || profile?.user_type === 'vet') {
     return <Navigate to="/vet/painel" replace />;
   }
   return <Navigate to="/app/dashboard" replace />;
@@ -73,8 +78,6 @@ const PrivateRoutes = () => {
   );
 };
 
-// --- AppRoutes é onde a mágica acontece ---
-
 const AppRoutes = () => {
   const { session, loading } = useAuth();
 
@@ -84,29 +87,27 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      {/* Se o usuário NÃO está logado, ele só pode ver estas rotas */}
+      <Route path="/auth/callback" element={<AuthCallback />} />
+      <Route path="/definir-senha" element={<DefinirSenha />} />
+      <Route path="/resetar-senha" element={<DefinirSenha />} />
+
       {!session && (
         <>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
-          {/* --- INCLUSÃO DAS NOVAS ROTAS PÚBLICAS --- */}
-          <Route path="/definir-senha" element={<DefinirSenha />} />
-          <Route path="/resetar-senha" element={<DefinirSenha />} /> {/* Reutilizando o componente */}
-          <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </>
       )}
 
-      {/* Se o usuário ESTÁ logado, ele acessa as rotas privadas */}
+      
       {session && (
         <>
-          {/* A rota raiz redireciona para o painel correto */}
+          
           <Route path="/" element={<AuthRedirect />} />
-          {/* Rotas de Tutor */}
+          
           <Route path="/app/*" element={<PrivateRoutes />} />
-          {/* Rotas de Veterinário */}
           <Route path="/vet/*" element={<PrivateRoutes />} />
-          {/* Qualquer outra rota desconhecida redireciona para a raiz */}
+          
           <Route path="*" element={<Navigate to="/" replace />} />
         </>
       )}
@@ -114,21 +115,14 @@ const AppRoutes = () => {
   );
 };
 
-// --- Componente App principal, agora muito mais limpo ---
-
 function App() {
   return (
     <>
-      <Helmet>
-        <title>My Pet On</title>
-        <meta name="description" content="Acompanhe a saúde e bem-estar dos seus pets em um só lugar" />
-      </Helmet>
-      
-        
-        <div className="min-h-screen bg-gray-50">
-          <AppRoutes />
-          <Toaster />
-        </div>
+      <title>My Pet On</title>
+      <div className="min-h-screen bg-gray-50">
+        <AppRoutes />
+        <Toaster />
+      </div>
       
     </>
   );

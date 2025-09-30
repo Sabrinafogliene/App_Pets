@@ -101,6 +101,7 @@ CREATE TABLE public.profiles (
   updated_at timestamp with time zone DEFAULT now(),
   user_id uuid,
   email text,
+  is_setup_complete boolean DEFAULT false,
   CONSTRAINT profiles_pkey PRIMARY KEY (id),
   CONSTRAINT profiles_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id),
   CONSTRAINT profiles_id_fkey_new FOREIGN KEY (id) REFERENCES auth.users(id)
@@ -232,14 +233,15 @@ LANGUAGE plpgsql
 SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
-  INSERT INTO public.profiles (id, user_type, full_name, crmv, clinic, email)
+  INSERT INTO public.profiles (id, user_type, full_name, crmv, clinic, email, is_setup_complete)
   VALUES (
     new.id,
     new.raw_user_meta_data->>'user_type',
     new.raw_user_meta_data->>'full_name',
     new.raw_user_meta_data->>'crmv',
     new.raw_user_meta_data->>'clinic',
-    new.email
+    new.email,
+    FALSE 
   );
   RETURN new;
 END;

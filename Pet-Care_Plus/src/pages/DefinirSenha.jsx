@@ -1,5 +1,3 @@
-// src/pages/DefinirSenha.jsx
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
@@ -9,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 
 const DefinirSenha = () => {
-  const { supabase } = useAuth();
+  const { supabase, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [password, setPassword] = useState('');
@@ -19,25 +17,39 @@ const DefinirSenha = () => {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await supabase.auth.updateUser({ password: password });
-
-    setLoading(false);
-
-    if (error) {
+    const { error: authError } = await supabase.auth.updateUser({ password: password });
+    if (authError) {
+      setLoading(false);
       toast({
         variant: 'destructive',
         title: 'Erro ao definir senha',
-        description: error.message,
+        description: authError.message,
       });
-    } else {
-      toast({
-        title: 'Senha definida com sucesso!',
-        description: 'Você será redirecionado para o painel.',
-        className: 'bg-green-500 text-white',
-      });
-      // Redireciona para o painel do veterinário após definir a senha
-      navigate('/vet/painel'); 
     }
+
+    const {error: profileError} = await supabase
+        .from('profiles')
+        .update({ is_setup_complete: true})
+        .eq('id', user.id);
+
+    setLoading(false);
+
+    if (profileError) {
+        console.error("Erro ao marcar setup como completo:", profileError.message);
+        toast({
+          variant: 'destructive',
+          title: 'Erro ao definir senha',
+          description: 'Senha definida, mas houve erro ao finalizar setup. Tente fazer login.',
+        });
+    } 
+    toast({
+      title: 'Senha definida com sucesso!',
+      description: 'Você será redirecionado para o painel.',
+      className: 'bg-green-500 text-white',
+    });
+      
+    navigate('/vet/painel'); 
+    
   };
 
   return (

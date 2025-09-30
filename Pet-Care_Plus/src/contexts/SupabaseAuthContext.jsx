@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react';
-import { supabase } from '@/supabaseClient.js'; // Certifique-se que este caminho está correto
-
+import { supabase } from '@/supabaseClient.js';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -13,7 +12,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, user_type, full_name')
+        .select('id, user_type, full_name, is_setup_complete')
         .eq('id', user.id)
         .single();
       
@@ -67,15 +66,19 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
  
-  const value = useMemo(() => ({
-    loading, 
-    session,
-    user: session?.user ?? null,
-    profile,
-    signIn,
-    signOut,
-    supabase,
-  }), [loading, session, profile, signIn, signOut]);
+  const value = useMemo(() => {
+    const user = session?.user ?? null;
+    needsPasswordSetup: profile?.user_type === 'vet' && profile?.is_setup_complete !== true;
+    return { 
+      loading, 
+      session,
+      profile,
+      needsPasswordSetup,
+      signIn,
+      signOut,
+      supabase,
+    };
+  }, [loading, session, profile, signIn, signOut]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
