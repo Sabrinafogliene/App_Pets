@@ -9,7 +9,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
 import PetCard from '@/components/PetCard';
 
-const SUPABASE_BASE_URL = 'https://axavdsrihemzsamnwgcf.supabase.co'; 
+ 
 const PainelVeterinario = () => {
   const { toast } = useToast();
   const { user, supabase, session } = useAuth();
@@ -44,7 +44,7 @@ useEffect(() => {
 }, [supabase, user, toast, session]);
 
   const handleSendInvite = async () => {
-    if (!inviteEmail || !inviteEmail.includes('@')){
+    if (!inviteEmail || !session?.access_token){
       toast ({ variant: 'destructive', title: 'Por favor, insira um e-mail válido.' });
       return;
     }
@@ -52,8 +52,7 @@ useEffect(() => {
     setIsSending(true);
 
     try {
-      const url = `${SUPABASE_BASE_URL}/functions/v1/invite-tutor`;
-      const response = await fetch(url, {
+      const response = await fetch('https://axavdsrihemzsamnwgcf.supabase.co',{
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -62,17 +61,16 @@ useEffect(() => {
         
         body: JSON.stringify({ email: inviteEmail }), 
       });
+
+      const data = await response.json();
       if (!response.ok) {
         
-        const errorBody = await response.json();
-        throw new Error(errorBody.message || `Erro HTTP: ${response.status}`);
+        throw new Error(data.message || 'Erro Desconhecido!');
       }      
-      const responseData = await response.json();
-      
       toast({
-        title: responseData.status === 'invitation_sent' ? 'Convite Enviado!' : (responseData.status === 'user_exists' ? 'Usuário Existente' : 'Sucesso!'),
-        description: responseData.message,
-        className: responseData.status === 'invitation_sent' || responseData.status === 'user_exists' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+        title: data.status === 'invitation_sent' ? 'Convite Enviado!' : 'Acesso Concedido!',
+        description: data.message,
+        className: 'bg-green-500 text-white'
       });
       
       setInviteEmail('');
