@@ -32,7 +32,17 @@ const AuthCallback = () => {
           });
           if (sessionError) throw sessionError;
 
-            window.location.href = '/';
+          const urlParams = new URLSearchParams(window.location.search);
+          const redirectToSetPassword = urlParams.get('redirect_to_set_password');
+          
+          if (redirectToSetPassword === 'true') {
+            navigate('/definir-senha', { replace: true });
+          } else {
+            navigate('/', { replace: true});
+          }
+          
+
+
         } catch (err) {
           console.error("Erro ao processar tokens de callback:", err);
           setError("Erro de autenticação. Tente fazer login novamente.");

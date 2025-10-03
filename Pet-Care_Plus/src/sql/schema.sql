@@ -278,36 +278,29 @@ end;
 $$;
 grant execute on function public.invite_vet_by_email(text, uuid) to authenticated;
 
-create or replace function public.invite_tutor_by_email(p_email text)
+create or replace function public.invite_tutor_by_email(data JSONB)
 returns jsonb
 language plpgsql
 security definer
 as $$
 declare
+  email_tutor text;
   existing_user_id uuid;
-  current_user_id uuid;
-  v_metadata jsonb;
-begin
-  -- Pega o ID do usuário que está chamando a função (o veterinário logado)
-  current_user_id := auth.uid();
-  v_metadata := jsonb_build_object('user_type', 'tutor', 'invited_by_vet_id', current_user_id);
   
-  -- Verifica se o usuário já existe na tabela de autenticação
-  select id from auth.users where email = p_email into existing_user_id;
+begin
+  
+  email_tutor := data->>'p_email';
+
+  if email_tutor is null or email_tutor = '' then
+    return jsonb_build_object('success', false, 'message', 'O e-mail do tutor é obrigatório.');
+  end if;
+  select id from auth.users where email = email_tutor into existing_user_id;
 
   if existing_user_id is not null then
-    -- Se o usuário já existe
-    return jsonb_build_object('status', 'user_exists', 'message', 'Este e-mail já possui cadastro. Peça para o tutor fazer login.');
+    return jsonb_build_object('success', true, 'message', 'Usuário já cadastrado.', 'user_exists', true);
   else
-    -- Se o usuário é novo, chama a função de convite
-    -- FORÇA o NULL a ser tratado como TEXT para resolver o erro 'unknown'
-    perform auth.admin_invite_user_by_email(
-      p_email, 
-      NULL::text, -- <--- CORREÇÃO CRÍTICA AQUI
-      v_metadata 
-    );
-    
-    return jsonb_build_object('status', 'invitation_sent', 'message', 'Convite enviado com sucesso para o novo tutor.');
+    perform auth.admin_invite_user_by_email(tutor_email, null);
+    return jsonb_build_object('success', true, 'message', 'Convite enviado com sucesso!', 'user_exists', false);
   end if;
 end;
 $$;
