@@ -24,9 +24,12 @@ import { useAuth } from '@/contexts/SupabaseAuthContext';
 import AuthCallback from '@/pages/AuthCallback';
 
 const AuthRedirect = () => {
-  const { profile, loading, needsPasswordSetup } = useAuth();
+  const { profile, session, loading, needsPasswordSetup } = useAuth();
+  const isVet= profile?.user_type === 'veterinario' || profile?.user_type === 'vet';
+  const isTutor = profile?.user_type === 'tutor';
+
   
-  if (loading) {
+  if (loading || (session && profile === null)) {
     return <div className="flex justify-center items-center h-screen">Carregando perfil...</div>;
   }
 
@@ -34,16 +37,20 @@ const AuthRedirect = () => {
     return <Navigate to="/definir-senha" replace />;
   }
 
-  if (profile?.user_type === 'veterinario' || profile?.user_type === 'vet') {
+  if (isVet) {
     return <Navigate to="/vet/painel" replace />;
   }
-  return <Navigate to="/app/dashboard" replace />;
+  if (isTutor) {
+    return <Navigate to="/app/dashboard" replace />;
+  }
+  return <Navigate to="/login" replace />;
 };
 
 const PrivateRoutes = () => {
   const { profile } = useAuth();
   const userType = profile?.user_type;
   const isVet = userType === 'veterinario' || userType === 'vet';
+  
 
   return (
     <Layout>

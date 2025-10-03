@@ -11,12 +11,15 @@ import PetCard from '@/components/PetCard';
 
 const PainelVeterinario = () => {
   const { toast } = useToast();
-  const { user, supabase } = useAuth();
+  const { user, supabase, session } = useAuth();
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [isSending, setIsSending] = useState(false);
 
 useEffect(() => {  
   const fetchPatients = async () => {
+    setLoading(true);
     try {
       const {data, error } = await supabase.rpc('get_vet_patients');
       if (error) {
@@ -30,18 +33,60 @@ useEffect(() => {
         title: 'Erro inesperado',
         description: err.message,
       });
+    } finally {
+      setLoading(false);
     }
  };
  if (supabase && user) {
     fetchPatients();
  }
-}, [supabase, user]);
+}, [supabase, user, toast, session]);
 
-  const handleSendInvite = () => {
-    toast({
-      title: "🚧 Esta funcionalidade ainda não foi implementada—mas não se preocupe! Você pode solicitá-la no seu próximo prompt! 🚀"
-    });
+  const handleSendInvite = async () => {
+    if (!inviteEmail || !inviteEmail.includes('@')){
+      toast ({ variant: 'destructive', title: 'Por favor, insira um e-mail válido.' });
+      return;
+    }
+    
+    setIsSending(true);
+
+    try {
+      const response = await fetch('https://axavdsrihemzsamnwgcf.supabase.co/functions/v1/invite-tutor',{
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`
+          },
+          body: JSON.stringify({ email: inviteEmail }),
+      });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Erro ao comunicar com a função.');
+        }
+        const responseData = Array.isArray(data) ? data[0] : data;
+        
+        toast({
+          title: responseData.status === 'invitation_sent' ? 'Convite Enviado!' : 'Acesso Concedido!',
+          description: responseData.message,
+          className: 'bg-green-500 text-white'
+        });
+            
+        setInviteEmail('');
+        
+        } catch (data) {
+        const errorMessage = data.message || 'Erro de comunicação com o servidor';
+            toast({
+              variant: 'destructive',
+              title: 'Erro de Servidor',
+              description: errorMessage,
+            });
+        } finally {
+        setIsSending(false);
+    }
   };
+    
 
   return (
     <div className="space-y-6">
@@ -50,7 +95,7 @@ useEffect(() => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-2xl md:text-3xl font-bold text-cyan-600 mb-2">Painel do Veterinário</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-teal-600 mb-2">Painel do Veterinário</h1>
         <p className="text-gray-600">Acesse o histórico dos seus pacientes.</p>
       </motion.div>
 
@@ -63,7 +108,7 @@ useEffect(() => {
         >
           <div className="bg-white rounded-xl p-4 sm:p-6 card-shadow">
             <div className="flex items-center space-x-2 mb-6">
-              <PawPrint className="w-5 h-5 text-cyan-600" />
+              <PawPrint className="w-5 h-5 text-teal-600" />
               <h2 className="text-xl font-semibold text-gray-600">Meus Pacientes ({patients.length})</h2>
             </div>
             {loading ? <div className='text-center py-8'>Carregando pacientes...</div> : (
@@ -92,13 +137,13 @@ useEffect(() => {
             <h2 className="text-xl font-semibold text-gray-600 mb-4">Ações Rápidas</h2>
             <div className="space-y-3">
               <Link to="/vet/prontuario">
-                <Button variant="outline" className="w-full justify-start"><BookOpen className="w-4 h-4 mr-2 text-cyan-600"/> Prontuário</Button>
+                <Button variant="outline" className="w-full justify-start"><BookOpen className="w-4 h-4 mr-2 text-teal-600"/> Prontuário</Button>
               </Link>
               <Link to="/vet/agenda">
-                <Button variant="outline" className="w-full justify-start"><Calendar className="w-4 h-4 mr-2 text-cyan-600" /> Agenda</Button>
+                <Button variant="outline" className="w-full justify-start"><Calendar className="w-4 h-4 mr-2 text-teal-600" /> Agenda</Button>
               </Link>
               <Link to="/vet/configuracoes">
-                <Button variant="outline" className="w-full justify-start"><Settings className="w-4 h-4 mr-2 text-cyan-600" /> Configurações</Button>
+                <Button variant="outline" className="w-full justify-start"><Settings className="w-4 h-4 mr-2 text-teal-600" /> Configurações</Button>
               </Link>
             </div>
           </div>
@@ -112,14 +157,17 @@ useEffect(() => {
                 <Input
                   type="email"
                   placeholder="email.do.tutor@exemplo.com"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  disabled={isSending}
                 />
               </div>
               <Button 
                 onClick={handleSendInvite}
-                className="w-full bg-cyan-600 hover:bg-cyan-700 flex items-center justify-center"
+                className="w-full bg-teal-600 hover:bg-teal-700 flex items-center justify-center"
+                disabled={isSending}
               >
-                <Send className="w-4 h-4 mr-2" />
-                Enviar Convite
+                {isSending ? 'Enviando...' : (<><Send className="w-4 h-4 mr-2" /> Enviar Convite</>)}
               </Button>
             </div>
           </div>
@@ -128,5 +176,6 @@ useEffect(() => {
     </div>
   );
 };
+
 
 export default PainelVeterinario;

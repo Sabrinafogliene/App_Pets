@@ -68,17 +68,18 @@ export const AuthProvider = ({ children }) => {
  
   const value = useMemo(() => {
     const user = session?.user ?? null;
-    needsPasswordSetup: profile?.user_type === 'vet' && profile?.is_setup_complete !== true;
+    const needsPasswordSetup = profile?.user_type === 'vet' && profile?.is_setup_complete !== true;
     return { 
       loading, 
       session,
+      user,
       profile,
       needsPasswordSetup,
       signIn,
       signOut,
       supabase,
     };
-  }, [loading, session, profile, signIn, signOut]);
+  }, [loading, session, profile, signIn, signOut, supabase]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

@@ -175,7 +175,7 @@ end;
 $$;
 grant execute on function public.get_user_by_email(text) to authenticated;
 
-DROP FUNCTION IF EXISTS public.get_vet_patients();
+drop function if exists public.get_vet_patients(); 
 create or replace function public.get_vet_patients()
 returns table (
   id uuid,
@@ -183,9 +183,9 @@ returns table (
   species text,
   breed text,
   birthday date,
-  weight text,
-  gender text,
-  file_path text,
+  weight text,        
+  gender text,     
+  file_path text,     
   castrated boolean,
   registro boolean
 )
@@ -200,11 +200,12 @@ begin
   join vet_access va
     on va.pet_id = p.id
   where
-   va.vet_id = auth.uid()
+    va.vet_id = auth.uid()
     and va.is_active = true;
 end;
 $$;
 grant execute on function public.get_vet_patients() to authenticated;
+
 
 DROP FUNCTION IF EXISTS public.grant_vet_access(text, uuid, uuid);
 create or replace function public.grant_vet_access(
@@ -277,6 +278,41 @@ end;
 $$;
 grant execute on function public.invite_vet_by_email(text, uuid) to authenticated;
 
+create or replace function public.invite_tutor_by_email(p_email text)
+returns jsonb
+language plpgsql
+security definer
+as $$
+declare
+  existing_user_id uuid;
+  current_user_id uuid;
+  v_metadata jsonb;
+begin
+  -- Pega o ID do usuário que está chamando a função (o veterinário logado)
+  current_user_id := auth.uid();
+  v_metadata := jsonb_build_object('user_type', 'tutor', 'invited_by_vet_id', current_user_id);
+  
+  -- Verifica se o usuário já existe na tabela de autenticação
+  select id from auth.users where email = p_email into existing_user_id;
+
+  if existing_user_id is not null then
+    -- Se o usuário já existe
+    return jsonb_build_object('status', 'user_exists', 'message', 'Este e-mail já possui cadastro. Peça para o tutor fazer login.');
+  else
+    -- Se o usuário é novo, chama a função de convite
+    -- FORÇA o NULL a ser tratado como TEXT para resolver o erro 'unknown'
+    perform auth.admin_invite_user_by_email(
+      p_email, 
+      NULL::text, -- <--- CORREÇÃO CRÍTICA AQUI
+      v_metadata 
+    );
+    
+    return jsonb_build_object('status', 'invitation_sent', 'message', 'Convite enviado com sucesso para o novo tutor.');
+  end if;
+end;
+$$;
+grant execute on function public.invite_tutor_by_email(text) to authenticated;
+
 drop policy if exists "Allow insert access to their own records" on public.consultations;
 create policy "Allow insert access to their own records"
 on public.consultations for insert
@@ -292,7 +328,7 @@ using (
   EXISTS (
     SELECT 1 FROM public.vet_access
     WHERE vet_access.vet_id = auth.uid()
-      AND vet_access.pet_id = pet_id
+      AND vet_access.pet_id = consultations.pet_id
       AND vet_access.is_active = true
       AND 'consultas' = ANY(vet_access.permissions)
   )
@@ -353,7 +389,16 @@ drop policy if exists "Allow authenticated users to select their own photos" on 
 create policy "Allow authenticated users to select their own photos"
 on public.gallery for select
 to authenticated
-using (auth.uid() = user_id);
+using (
+  auth.uid() = user_id OR
+  EXISTS (
+    SELECT 1 FROM public.vet_access
+    WHERE vet_access.vet_id = auth.uid()
+      AND vet_access.pet_id = gallery.pet_id
+      AND vet_access.is_active = true
+      AND 'fotos' = ANY(vet_access.permissions)
+  )
+);
 
 drop policy if exists "Allow authenticated users to insert their own photos" on public.gallery;
 create policy "Allow authenticated users to insert their own photos"
@@ -368,7 +413,7 @@ to authenticated
 using (auth.uid() = user_id);
 
 drop policy if exists "Allow authenticated users to read their own records" on public.medications;
-create policy "Allow authenticated users to read their own records"
+create policy "Vets can view permitted medications"
 on public.medications for select
 to authenticated
 using (
@@ -424,20 +469,19 @@ on public.pets for insert
 to authenticated
 with check (auth.uid() = user_id);
 
-drop policy if exists "Users can view their own pets" on public.pets;
-create policy "Users can view their own pets"
-on public.pets for select
-to authenticated
-using (auth.uid() = user_id);
-
 drop policy if exists "Vets can view pet details they have access to" on public.pets;
 create policy "Vets can view pet details they have access to"
 on public.pets for select
 to authenticated
 using (
-  (id IN ( SELECT vet_access.pet_id
-   FROM vet_access
-  WHERE (vet_access.vet_id = auth.uid())))
+  auth.uid() = user_id
+  OR
+  EXISTS (
+    SELECT 1 FROM public.vet_access 
+    WHERE vet_access.vet_id = auth.uid()
+    AND vet_access.pet_id = pets.id
+    AND vet_access.is_active = TRUE
+  )
 );
 
 drop policy if exists "Allow insert for authenticated users" on public.profiles;
@@ -447,7 +491,7 @@ to authenticated
 with check (auth.uid() = id);
 
 drop policy if exists "Users can view their own profile and others" on public.profiles;
-create policy "Users can view their own profile and others"
+create policy "Allow authenticated users to read their own profile"
 on public.profiles for select
 to authenticated
 using ((auth.uid()= id) OR (user_type = 'vet'));
@@ -471,7 +515,7 @@ to authenticated
 with check (auth.uid() = id);
 
 drop policy if exists "Allow read access to their own records" on public.vaccines;
-create policy "Allow read access to their own records"
+create policy "Vets can view permitted vaccines"
 on public.vaccines for select
 to authenticated
 using (
@@ -511,10 +555,10 @@ to authenticated
 using (auth.uid() = tutor_id OR auth.id() = vet_id);
 
 drop policy if exists "Tutors can grant new vet access" on public.vet_access;
-create policy "Tutors can grant new vet access"
+create policy "Vet can register own access on setup"
 on public.vet_access for insert
 to authenticated
-with check (auth.uid() = tutor_id);
+with check (auth.uid() = vet_id);
 
 drop policy if exists "Tutors can revoke access for their own pets" on public.vet_access;
 create policy "Tutors can revoke access for their own pets"
@@ -535,7 +579,7 @@ to authenticated
 using (auth.uid() = user_id);
 
 drop policy if exists "Allow authenticated users to select their own records" on public.weight_records;
-create policy "Allow authenticated users to select their own records"
+create policy "Vets can view permitted weight records"
 on public.weight_records for select
 to authenticated
 using (
